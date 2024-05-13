@@ -9,7 +9,7 @@ export const LoginButtonStyles = `
 `;
 
 export const ContentButtonStyles = `
-  padding: 0 20px;
+  width: 50%;
   border: none;
   cursor: pointer;
   font-size: 18px;

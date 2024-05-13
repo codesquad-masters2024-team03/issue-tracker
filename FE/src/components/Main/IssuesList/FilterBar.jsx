@@ -4,7 +4,7 @@ import { Dropdown } from "../../../icons/dropdown";
 import { Search } from "../../../icons/search";
 import { Popup } from "./Popup";
 
-const popupItems = [
+const issuePopupItems = [
   { id: "open", label: "열린 이슈" },
   { id: "my_issues", label: "내가 작성한 이슈" },
   { id: "assigned_to_me", label: "나에게 할당된 이슈" },
@@ -25,15 +25,15 @@ export function FilterBar() {
 
   return (
     <Container>
-      <Input id="dropdown" type="checkbox" onChange={handleToggleCheckbox} />
-      <Filter htmlFor="dropdown">
+      <Input id="issue" type="checkbox" onChange={handleToggleCheckbox} />
+      <Filter htmlFor="issue">
         <div>필터</div>
         <Dropdown />
       </Filter>
       <Popup
         id="이슈"
         isopen={isopen}
-        popupItems={popupItems}
+        popupItems={issuePopupItems}
         onChange={handleCloseContent}
       />
       <TextInput>
@@ -49,7 +49,6 @@ const Container = styled.div`
   width: 560px;
   min-width: 200px;
   position: relative;
-  z-index: 10;
   border: solid #dadbef;
   border-radius: 10px;
 `;

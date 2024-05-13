@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { ContentButtonStyles } from "../../../styles/commonStyles";
 import { Label } from "../../../icons/label";
 import { Milestones } from "../../../icons/milestones";
-import { FilterBar } from "./Filter";
+import { FilterBar } from "./FilterBar";
 import { IssueTable } from "./IssueTable";
 
 export function Content() {
@@ -47,6 +47,7 @@ const Tabs = styled.div`
   border: solid#dadbef;
   border-radius: 10px;
   width: 320px;
+  justify-content: center;
   .label,
   .milestones {
     ${ContentButtonStyles}

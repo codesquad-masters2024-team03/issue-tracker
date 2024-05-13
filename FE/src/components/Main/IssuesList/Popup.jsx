@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
-export const Popup = ({ id, isopen, popupItems, onChange }) => (
-  <StyledPopup $isopen={isopen}>
+export const Popup = ({ id, isopen, popupItems, onChange, ...props }) => (
+  <StyledPopup $isopen={isopen} {...props}>
     <Ul>
       <div>{id} 필터</div>
       {popupItems.map(({ id, label }) => (
