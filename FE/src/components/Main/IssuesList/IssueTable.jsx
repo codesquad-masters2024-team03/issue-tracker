@@ -1,23 +1,19 @@
 import { useState } from "react";
 import styled from "styled-components";
 import { Dropdown } from "../../../icons/dropdown";
+import { Closed } from "../../../icons/closed";
+import { Open } from "../../../icons/open";
 import { Popup } from "./Popup";
 
-const assigneePopupItems = [
-  { id: "no_assignee", label: "담당자가 없는 이슈" },
-];
+const assigneePopupItems = [{ id: "no_assignee", label: "담당자가 없는 이슈" }];
 
-const labelPopupItems = [
-  { id: "no_label", label: "레이블이 없는 이슈" },
-];
+const labelPopupItems = [{ id: "no_label", label: "레이블이 없는 이슈" }];
 
 const milestonesPopupItems = [
   { id: "no_milestones", label: "마일스톤이 없는 이슈" },
 ];
 
-const authorPopupItems = [
-  { id: "no_author", label: "작성자가 없는 이슈" },
-];
+const authorPopupItems = [{ id: "no_author", label: "작성자가 없는 이슈" }];
 
 const headerFilters = [
   { id: "assignee", label: "담당자", items: assigneePopupItems },
@@ -47,8 +43,14 @@ export function IssueTable() {
       <Header>
         <Left>
           <input type="checkbox" />
-          <div>열린 이슈( )</div>
-          <div>닫힌 이슈( )</div>
+          <StyledIssueBtn>
+            <Open />
+            <div>열린 이슈( )</div>
+          </StyledIssueBtn>
+          <StyledIssueBtn>
+            <Closed />
+            <div>닫힌 이슈( )</div>
+          </StyledIssueBtn>
         </Left>
         <Right>
           {headerFilters.map((popup) => (
@@ -77,10 +79,6 @@ export function IssueTable() {
   );
 }
 
-const StyledPopup = styled(Popup)`
-  right: 0;
-`;
-
 const StyledDiv = styled.div`
   display: flex;
   flex-direction: column;
@@ -104,6 +102,12 @@ const Left = styled.div`
   margin-left: 20px;
 `;
 
+const StyledIssueBtn = styled.div`
+  display: flex;
+  justify-content: space-around;
+  width: 110px;
+`;
+
 const Right = styled.div`
   display: flex;
   align-items: center;
@@ -116,6 +120,10 @@ const Right = styled.div`
 const Container = styled.div`
   display: flex;
   position: relative;
+`;
+
+const StyledPopup = styled(Popup)`
+  right: 0;
 `;
 
 const Input = styled.input`
