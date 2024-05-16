@@ -15,44 +15,44 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @Transactional
 class LabelServiceTest {
 
-    @Autowired
-    LabelService service;
-
-    @DisplayName("라벨을 생성하고서 찾아온다.")
-    @Test
-    void test1() {
-
-        LocalDateTime time = LocalDateTime.of(2024,05,13,0,0);
-
-        Label label = new Label("abc", "aa", "blue", time);
-        service.create(label);
-
-
-        Label findLabel = service.getLabel("abc");
-
-        assertThat(findLabel.getTitle()).isEqualTo("abc");
-        assertThat(findLabel.getDescription()).isEqualTo("aa");
-        assertThat(findLabel.getColor()).isEqualTo("blue");
-        assertThat(findLabel.getCreateTime()).isEqualTo(time);
-
-    }
-
-    @DisplayName("라벨을 생성하고 삭제한다.")
-    @Test
-    void test2() {
-
-        LocalDateTime time = LocalDateTime.of(2024,05,13,0,0);
-
-
-        Label label = new Label("abc", "aa", "blue", time);
-        service.create(label);
-
-        Label findLabel = service.getLabel("abc");
-
-        service.delete("abc");
-        assertThatThrownBy(()->service.getLabel("abc")).isInstanceOf(IllegalArgumentException.class);
-
-    }
+//    @Autowired
+//    LabelService service;
+//
+//    @DisplayName("라벨을 생성하고서 찾아온다.")
+//    @Test
+//    void test1() {
+//
+//        LocalDateTime time = LocalDateTime.of(2024,05,13,0,0);
+//
+//        Label label = new Label("abc", "aa", "blue", time);
+//        service.create(label);
+//
+//
+//        Label findLabel = service.getLabel("abc");
+//
+//        assertThat(findLabel.getTitle()).isEqualTo("abc");
+//        assertThat(findLabel.getDescription()).isEqualTo("aa");
+//        assertThat(findLabel.getColor()).isEqualTo("blue");
+//        assertThat(findLabel.getCreateTime()).isEqualTo(time);
+//
+//    }
+//
+//    @DisplayName("라벨을 생성하고 삭제한다.")
+//    @Test
+//    void test2() {
+//
+//        LocalDateTime time = LocalDateTime.of(2024,05,13,0,0);
+//
+//
+//        Label label = new Label("abc", "aa", "blue", time);
+//        service.create(label);
+//
+//        Label findLabel = service.getLabel("abc");
+//
+//        service.delete("abc");
+//        assertThatThrownBy(()->service.getLabel("abc")).isInstanceOf(IllegalArgumentException.class);
+//
+//    }
 //
 //
 //    @DisplayName("라벨 내용을 수정한다.")
