@@ -1,37 +1,18 @@
 package com.codesquad.team3.issuetracker.domain.labels.service;
 
 import com.codesquad.team3.issuetracker.domain.labels.entity.Label;
-import com.codesquad.team3.issuetracker.domain.labels.repository.LabelRepository;
-import org.springframework.stereotype.Service;
 
+import java.util.List;
 
-@Service
-public class LabelService {
+public interface LabelService {
 
-    private final LabelRepository labelRepository;
+    public void create(Label label);
 
+    public void update(Integer id, Label updateLabel);
 
-    public LabelService(LabelRepository labelRepository) {
-        this.labelRepository = labelRepository;
-    }
+    public void delete(Integer id);
 
-    public void create(Label label){
-        labelRepository.save(label);
-    }
+    public Label getLabel(Integer id);
 
-    public void update(String title, Label updateLabel){
-        labelRepository.updateByTitle(title,
-                updateLabel.getDescription(),
-                updateLabel.getColor(),
-                updateLabel.getTitle());
-    }
-
-    public void delete(String id){
-        labelRepository.deleteById(id);
-    }
-
-
-    public Label getLabel(String id) {
-        return labelRepository.findById(id).orElseThrow(IllegalArgumentException::new);
-    }
+    public List<Label> getAllLabels();
 }
