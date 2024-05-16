@@ -11,6 +11,7 @@ import java.time.LocalDate;
 public class Milestone {
 
     @Id
+    private Integer id;
     private final String title;
     private final String description;
     private final LocalDate deadline;

@@ -1,22 +1,18 @@
 package com.codesquad.team3.issuetracker.domain.milestone.service;
 
 import com.codesquad.team3.issuetracker.domain.milestone.entity.Milestone;
-import com.codesquad.team3.issuetracker.domain.milestone.repository.MilestoneRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
-@Service
-@RequiredArgsConstructor
-public class MilestoneService {
+import java.util.List;
 
-    private final MilestoneRepository milestoneRepository;
+public interface MilestoneService {
 
+    void create(Milestone milestone);
 
-    public void create(Milestone milestone) {
-        milestoneRepository.insert(milestone);
-    }
+    void delete(Integer id);
 
-    public void delete(Milestone milestone) {
-        milestoneRepository.delete(milestone);
-    }
+    void update(Integer id, Milestone updatemilestone);
+
+    Milestone getMilestone(Integer id);
+
+    List<Milestone> getAllMilestones();
 }
