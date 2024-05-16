@@ -12,11 +12,10 @@ import java.time.LocalDateTime;
 public class Label {
 
     @Id
+    private Integer id;
     private final String title;
     private final String description;
     private final String color;
-
-    private final LocalDateTime createTime;
     private boolean isDeleted;
 
 }
