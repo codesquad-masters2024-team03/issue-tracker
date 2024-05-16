@@ -12,7 +12,6 @@ public class LabelForm {
     @NotBlank(message = "이름은 필수 입력값입니다.")
     @Length(max = 10)
     private final String title;
-    @NotBlank(message ="설명은 필수 입력값입니다.")
     private final String description;
     @NotBlank(message ="색은 필수 입력값입니다.")
     private final String color;
