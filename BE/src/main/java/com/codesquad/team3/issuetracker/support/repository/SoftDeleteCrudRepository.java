@@ -14,6 +14,8 @@ import static com.codesquad.team3.issuetracker.support.repository.RepositorySupp
 public interface SoftDeleteCrudRepository<T extends SoftDeleteEntity, ID> extends
     SimpleCrudRepository<T, ID> {
 
+    Class<T> getType();
+
     default T softDelete(T entity) {
         entity.delete();
         update(entity);
@@ -32,16 +34,16 @@ public interface SoftDeleteCrudRepository<T extends SoftDeleteEntity, ID> extend
     @Deprecated
     Iterable<T> findAll();
 
-    default Iterable<? extends SoftDeleteEntity> findAll(Class<T> entityClass, SoftDeleteSearchFlags flags) {
-        return getJdbcAggregateTemplate().findAll(getQuery(flags), entityClass);
+    default Iterable<T> findAll(SoftDeleteSearchFlags flags) {
+        return getJdbcAggregateTemplate().findAll(getQuery(flags), getType());
     }
 
-    default int countByDeleteCondition(Class<T> entityClass, SoftDeleteSearchFlags flags) {
-        return (int) getJdbcAggregateTemplate().count(getQuery(flags), entityClass);
+    default int countByDeleteCondition(SoftDeleteSearchFlags flags) {
+        return (int) getJdbcAggregateTemplate().count(getQuery(flags), getType());
     }
 
-    default Optional<T> findByIdWithDeleteCondition(ID id, Class<T> entityClass, SoftDeleteSearchFlags flags) {
-        return getJdbcAggregateTemplate().findOne(getQuery(id, flags), entityClass);
+    default Optional<T> findByIdWithDeleteCondition(ID id, SoftDeleteSearchFlags flags) {
+        return getJdbcAggregateTemplate().findOne(getQuery(id, flags), getType());
     }
 }
 

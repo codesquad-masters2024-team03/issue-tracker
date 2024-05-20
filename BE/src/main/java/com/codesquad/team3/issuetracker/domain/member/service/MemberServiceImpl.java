@@ -5,8 +5,9 @@ import com.codesquad.team3.issuetracker.domain.member.dto.request.UpdateMember;
 import com.codesquad.team3.issuetracker.domain.member.dto.response.ResponseMember;
 import com.codesquad.team3.issuetracker.domain.member.entity.Member;
 import com.codesquad.team3.issuetracker.domain.member.repository.MemberRepository;
-import java.util.ArrayList;
+import com.codesquad.team3.issuetracker.support.enums.SoftDeleteSearchFlags;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -19,34 +20,32 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public ResponseMember save(CreateMember createRequest) {
         Member savedMember = memberRepository.insert(new Member(createRequest));
-        return savedMember.toResponse();
+        return ResponseMember.toResponse(savedMember);
     }
 
     @Override
     public ResponseMember update(Integer targetId, UpdateMember updateRequest) {
-        Member targetMember = memberRepository.getById(targetId).get();
+        Member targetMember = memberRepository.findByIdWithDeleteCondition(targetId, SoftDeleteSearchFlags.NOT_DELETED).get();
         Member updatedMember = memberRepository.update(targetMember.update(updateRequest));
-        return updatedMember.toResponse();
+        return ResponseMember.toResponse(updatedMember);
     }
 
     @Override
     public ResponseMember findById(Integer targetId) {
-        Member targetMember = memberRepository.getById(targetId).get();
-        return targetMember.toResponse();
+        Member targetMember = memberRepository.findByIdWithDeleteCondition(targetId, SoftDeleteSearchFlags.NOT_DELETED).get();
+        return ResponseMember.toResponse(targetMember);
     }
 
     @Override
     public List<ResponseMember> findAll() {
-        Iterable<Member> members = memberRepository.getAll();
-        List<ResponseMember> responseMembers = new ArrayList<>();
-        members.forEach(member -> responseMembers.add(member.toResponse()));
-        return responseMembers;
+        List<Member> allMembers = (List<Member>) memberRepository.findAll(SoftDeleteSearchFlags.NOT_DELETED);
+        return allMembers.stream().map(ResponseMember::toResponse).collect(Collectors.toList());
     }
 
     @Override
     public ResponseMember softDeleteById(Integer targetId) {
-        Member targetMember = memberRepository.getById(targetId).get();
+        Member targetMember = memberRepository.findByIdWithDeleteCondition(targetId, SoftDeleteSearchFlags.NOT_DELETED).get();
         Member deletedMember = memberRepository.softDelete(targetMember);
-        return deletedMember.toResponse();
+        return ResponseMember.toResponse(deletedMember);
     }
 }
