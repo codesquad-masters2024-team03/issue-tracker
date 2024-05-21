@@ -4,10 +4,7 @@ import lombok.Getter;
 
 public interface SoftDeleteEntity {
 
-
      void delete();
-
      void recover();
-
-
+  
 }

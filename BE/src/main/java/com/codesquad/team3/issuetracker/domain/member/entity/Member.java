@@ -2,7 +2,6 @@ package com.codesquad.team3.issuetracker.domain.member.entity;
 
 import com.codesquad.team3.issuetracker.domain.member.dto.request.CreateMember;
 import com.codesquad.team3.issuetracker.domain.member.dto.request.UpdateMember;
-import com.codesquad.team3.issuetracker.domain.member.dto.response.ResponseMember;
 import com.codesquad.team3.issuetracker.global.entity.SoftDeleteEntity;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
@@ -53,8 +52,14 @@ public class Member implements SoftDeleteEntity {
         );
     }
 
-    public ResponseMember toResponse() {
-        return new ResponseMember(memberId, nickname, birthday, joinTime, email);
+    @Override
+    public void delete() {
+        this.isDeleted = true;
+    }
+
+    @Override
+    public void recover() {
+        this.isDeleted = false;
     }
 
     @Override
