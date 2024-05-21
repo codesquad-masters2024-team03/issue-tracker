@@ -1,19 +1,16 @@
 package com.codesquad.team3.issuetracker.domain.milestone.dto.response;
 
-import com.codesquad.team3.issuetracker.domain.milestone.entity.Milestone;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.util.List;
 
 @Getter
+@AllArgsConstructor
 public class MilestoneList {
 
     private final int countOfMilestone;
-    private final List<Milestone> milestoneList;
+    private final List<MilestoneInfo> milestoneList;
 
 
-    public MilestoneList(List<Milestone> milestoneList) {
-        this.milestoneList = milestoneList;
-        this.countOfMilestone=milestoneList.size();
-    }
 }

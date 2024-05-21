@@ -1,9 +1,5 @@
 package com.codesquad.team3.issuetracker.support.repository;
 
-import com.codesquad.team3.issuetracker.support.ApplicationContextProvider;
-import org.springframework.context.ApplicationContext;
-import org.springframework.data.jdbc.core.JdbcAggregateOperations;
-import org.springframework.data.jdbc.core.JdbcAggregateTemplate;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.NoRepositoryBean;
 

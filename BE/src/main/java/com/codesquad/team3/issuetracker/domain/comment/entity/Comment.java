@@ -1,27 +1,41 @@
 package com.codesquad.team3.issuetracker.domain.comment.entity;
 
-import lombok.AllArgsConstructor;
+import com.codesquad.team3.issuetracker.domain.file.entity.UploadFile;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.LocalDateTime;
 
-@Table("COMMENT")
-@AllArgsConstructor
+@Table("comment")
 @Getter
+@NoArgsConstructor
 public class Comment {
 
     @Id
     private Integer id;
-    private String writer_name;
+    private Integer writerId;
     private String contents;
+    private Integer issueId;
+    private UploadFile uploadFile;
+    private LocalDateTime createTime;
+    private boolean isDeleted;
+    private boolean isPrimary;
 
-    @CreatedDate
-    private LocalDateTime create_time;
-    private Integer issue_id;
-    private boolean is_deleted;
-    private boolean is_primary;
+    public Comment(Integer writerId, String contents, Integer issueId, UploadFile uploadFile, LocalDateTime createTime) {
+        this.writerId = writerId;
+        this.contents = contents;
+        this.issueId = issueId;
+        this.uploadFile = uploadFile;
+        this.createTime = createTime;
+    }
+
+    public Comment(Integer id, Integer writerId, String contents, Integer issueId, UploadFile uploadFile) {
+        this.id = id;
+        this.writerId = writerId;
+        this.contents = contents;
+        this.issueId = issueId;
+        this.uploadFile = uploadFile;
+    }
 }

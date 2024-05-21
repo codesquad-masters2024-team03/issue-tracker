@@ -24,20 +24,20 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public ResponseMember update(Integer targetId, UpdateMember updateRequest) {
-        Member targetMember = memberRepository.getById(targetId).get();
+        Member targetMember = memberRepository.findById(targetId).get();
         Member updatedMember = memberRepository.update(targetMember.update(updateRequest));
         return updatedMember.toResponse();
     }
 
     @Override
     public ResponseMember findById(Integer targetId) {
-        Member targetMember = memberRepository.getById(targetId).get();
+        Member targetMember = memberRepository.findById(targetId).get();
         return targetMember.toResponse();
     }
 
     @Override
     public List<ResponseMember> findAll() {
-        Iterable<Member> members = memberRepository.getAll();
+        Iterable<Member> members = memberRepository.findAll();
         List<ResponseMember> responseMembers = new ArrayList<>();
         members.forEach(member -> responseMembers.add(member.toResponse()));
         return responseMembers;
@@ -45,7 +45,7 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public ResponseMember softDeleteById(Integer targetId) {
-        Member targetMember = memberRepository.getById(targetId).get();
+        Member targetMember = memberRepository.findById(targetId).get();
         Member deletedMember = memberRepository.softDelete(targetMember);
         return deletedMember.toResponse();
     }

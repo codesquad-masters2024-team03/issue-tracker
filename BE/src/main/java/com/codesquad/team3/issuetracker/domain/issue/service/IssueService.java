@@ -9,12 +9,19 @@ import java.util.List;
 
 public interface IssueService {
 
-    Issue createIssue(CreateIssue createIssue);
+    void createIssue(CreateIssue createIssue);
+
+    void close(Integer id);
+
+    void open(Integer id);
 
     List<Issue> getAllIssues(int loadCount);
 
     int getIssueCount(OpenCloseSearchFlags flags);
 
     void openIssue(List<Integer> issueIds) throws NoSuchRecordException;
+
     void closeIssue(List<Integer> issueIds) throws NoSuchRecordException;
+
+    List<Issue> getIssueByMilestoneId(Integer milestoneId);
 }

@@ -17,7 +17,7 @@ import org.springframework.data.relational.core.mapping.Table;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Member extends SoftDeleteEntity {
+public class Member implements SoftDeleteEntity {
 
     @Id
     private Integer id;
@@ -25,6 +25,7 @@ public class Member extends SoftDeleteEntity {
     private String password;
     private String nickname;
     private LocalDateTime birthday;
+
     @CreatedDate
     @Column("join_time")
     private LocalDateTime joinTime;
@@ -54,5 +55,17 @@ public class Member extends SoftDeleteEntity {
 
     public ResponseMember toResponse() {
         return new ResponseMember(memberId, nickname, birthday, joinTime, email);
+    }
+
+    @Override
+    public void delete() {
+        isDeleted = true;
+
+    }
+
+    @Override
+    public void recover() {
+        isDeleted= false;
+
     }
 }

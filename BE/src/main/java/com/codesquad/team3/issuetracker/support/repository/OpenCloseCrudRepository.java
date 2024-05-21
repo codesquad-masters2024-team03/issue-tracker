@@ -4,7 +4,6 @@ import com.codesquad.team3.issuetracker.global.entity.OpenCloseEntity;
 import com.codesquad.team3.issuetracker.support.enums.OpenCloseSearchFlags;
 import org.springframework.data.repository.NoRepositoryBean;
 
-import java.util.Iterator;
 import java.util.Optional;
 
 import static com.codesquad.team3.issuetracker.support.repository.RepositorySupport.*;

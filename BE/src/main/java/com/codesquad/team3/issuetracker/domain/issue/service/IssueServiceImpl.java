@@ -24,19 +24,36 @@ public class IssueServiceImpl implements IssueService{
     private final CommentService commentService;
 
     @Override
-    public Issue createIssue(CreateIssue createIssue) {
-        Issue newIssue = Issue.builder()
-                .writer_id(createIssue.getWriter())
-                .create_time(LocalDateTime.now())
-                .title(createIssue.getTitle())
-                .milestone_id(createIssue.getMilestone())
-                .build();
+    public void createIssue(CreateIssue createIssue) {
 
-        Issue insertdIssue = issueRepository.insert(newIssue);
-        commentService.createComment(new CreateComment(insertdIssue.getId(), createIssue));
+        Issue issue = new Issue(
+                        createIssue.getWriterId(),
+                        createIssue.getTitle(),
+                        LocalDateTime.now(),
+                        createIssue.getMilestoneId()
+                        );
 
-        return insertdIssue;
+
+        Issue insertdIssue = issueRepository.insert(issue);
+        commentService.createComment(
+                new CreateComment(createIssue.getWriterId(),
+                createIssue.getContents(),
+                insertdIssue.getId(),
+                null));
     }
+
+    @Override
+    public void open(Integer id) {
+        Issue issue = issueRepository.findById(id).get();
+        issueRepository.open(issue);
+    }
+
+    @Override
+    public void close(Integer id) {
+        Issue issue = issueRepository.findById(id).get();
+        issueRepository.close(issue);
+    }
+
 
     @Override
     public List<Issue> getAllIssues(int loadCount) {
@@ -46,6 +63,7 @@ public class IssueServiceImpl implements IssueService{
     @Override
     public int getIssueCount(OpenCloseSearchFlags flags) {
         return issueRepository.countByCloseCondition(Issue.class, flags);
+
     }
 
     @Override
@@ -63,6 +81,13 @@ public class IssueServiceImpl implements IssueService{
             issueRepository.close(findIssue.orElseThrow(NoSuchRecordException::new));
         }
     }
+
+    @Override
+    public List<Issue> getIssueByMilestoneId(Integer milestoneId) {
+        return issueRepository.getIssueListByMilestoneId(milestoneId);
+    }
+
+
 
 
 }

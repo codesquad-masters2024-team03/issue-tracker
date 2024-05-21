@@ -2,67 +2,58 @@ package com.codesquad.team3.issuetracker.domain.issue.entity;
 
 import com.codesquad.team3.issuetracker.global.entity.OpenCloseEntity;
 import com.codesquad.team3.issuetracker.global.entity.SoftDeleteEntity;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
+
 
 import java.time.LocalDateTime;
 
 @Table("ISSUE")
-@AllArgsConstructor
 @Getter
-@Builder
 public class Issue implements SoftDeleteEntity, OpenCloseEntity {
 
     @Id
-    private int id;
-
-    private Integer writer_id;
-
+    private Integer id;
+    private Integer writerId;
     private String title;
+    private LocalDateTime createTime;
+
+    private Integer milestoneId;
+    private boolean isClosed;
+    private boolean isDeleted;
 
 
-    @CreatedDate
-    private final LocalDateTime create_time;
-
-    private boolean is_closed;
-    private Integer milestone_id;
-    private boolean is_deleted;
+    public Issue(Integer writerId, String title, LocalDateTime createTime, Integer milestoneId) {
+        this.writerId = writerId;
+        this.title = title;
+        this.createTime = createTime;
+        this.milestoneId = milestoneId;
+    }
 
     @Override
     public void close() {
-        this.is_closed = true;
+        this.isClosed = true;
     }
 
     @Override
     public void open() {
-        this.is_closed = false;
+        this.isClosed = false;
     }
 
     @Override
     public boolean isClosed() {
-        return this.is_closed;
+        return this.isClosed;
     }
 
     @Override
     public void delete() {
-        this.is_deleted = true;
+        this.isDeleted = true;
     }
 
     @Override
     public void recover() {
-        this.is_deleted = false;
+        this.isDeleted = false;
     }
 
-    @Override
-    public boolean isDeleted() {
-        return this.is_deleted;
-    }
 }

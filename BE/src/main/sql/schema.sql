@@ -16,7 +16,7 @@ CREATE TABLE comment (
                          issue_id int NOT NULL ,
                          is_deleted bool DEFAULT false,
 
-                        is_primary bool DEFAULT false
+                         is_primary bool DEFAULT false
 );
 
 CREATE TABLE member (
@@ -37,8 +37,8 @@ CREATE TABLE label (
                        id int PRIMARY KEY AUTO_INCREMENT,
                        title varchar(10) NOT Null,
                        description varchar(50) NOT NULL,
-                       create_time timestamp NOT NULL,
-                       color char(6) DEFAULT '000000',
+                       color char(10) DEFAULT '000000' NOT NULL,
+                       font_color char(10) not null,
                        is_deleted bool DEFAULT false
 
 );
@@ -58,11 +58,16 @@ CREATE TABLE labels_in_issue (
                                  PRIMARY KEY (label_id, issue_id)
 );
 
+CREATE TABLE member_in_issue (
+                                 member_id int NOT NULL,
+                                 issue_id int NOT NULL,
+                                 PRIMARY KEY (member_id, issue_id)
+);
 
 CREATE TABLE uploaded_file_in_comment (
                                           file varchar(50),
                                           comment_id int,
-                                          PRIMARY KEY (file, comment_id)
+                                          PRIMARY KEY (comment_id)
 );
 
 CREATE TABLE assigner(
