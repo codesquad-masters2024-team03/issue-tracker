@@ -1,15 +1,13 @@
 package com.codesquad.team3.issuetracker.domain.issue.entity;
 
-import com.codesquad.team3.issuetracker.domain.issue.entity.mapping.Assigner;
+import com.codesquad.team3.issuetracker.domain.assigner.Assigner;
 import com.codesquad.team3.issuetracker.domain.issue.dto.request.CreateIssue;
-import com.codesquad.team3.issuetracker.domain.issue.entity.mapping.IssueLabel;
+import com.codesquad.team3.issuetracker.domain.issuelabel.IssueLabel;
 import com.codesquad.team3.issuetracker.global.entity.OpenCloseEntity;
-import com.codesquad.team3.issuetracker.global.entity.SoftDeleteEntity;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.MappedCollection;
 import org.springframework.data.relational.core.mapping.Table;
 
@@ -18,16 +16,15 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
-@Table("ISSUE")
+@Table(name="ISSUE")
 @Getter
 @Setter
 @NoArgsConstructor
-public class Issue implements OpenCloseEntity, SoftDeleteEntity {
+public class Issue implements OpenCloseEntity {
 
     @Id
     private Integer id;
-    @Column("WRITER_ID")
-    private Integer writer;
+    private Integer writerId;
     private String title;
     private LocalDateTime createTime;
 
@@ -42,38 +39,38 @@ public class Issue implements OpenCloseEntity, SoftDeleteEntity {
     private Set<Assigner> assignees = new HashSet<>();
 
 
-    public Issue(Integer writer, String title, Integer milestoneId, LocalDateTime createTime) {
-        this.writer = writer;
+    public Issue(Integer writerId, String title, LocalDateTime createTime, Integer milestoneId) {
+        this.writerId = writerId;
         this.title = title;
-        this.milestoneId = milestoneId;
         this.createTime = createTime;
+        this.milestoneId = milestoneId;
     }
 
-    public static Issue toEntity(CreateIssue createIssue, LocalDateTime createTime) {
+    public static Issue toEntity(CreateIssue createIssue) {
 
         return new Issue(createIssue.getWriter(),
                 createIssue.getTitle(),
-                createIssue.getMilestone(),
-                createTime);
+                LocalDateTime.now(),
+                createIssue.getMilestone());
     }
 
-    public void addLables(Set<IssueLabel> label) {
+    public void addLables(Set<IssueLabel> label){
         labels.addAll(label);
     }
 
-    public void addAssignees(Set<Assigner> assignee) {
+    public void addAssignee(Set<Assigner> assignee){
         this.assignees.addAll(assignee);
     }
 
-    public void deleteLabel(Integer label) {
-        labels.removeIf(i -> i.getLabelId().equals(label));
+    public void deleteLabel(Integer label){
+        labels.removeIf(i->i.getLabelId().equals(label));
     }
 
-    public void deleteAssignee(Integer assignee) {
-        assignees.removeIf(i -> i.getAssignerId().equals(assignee));
+    public void deleteAssignee(Integer assignee){
+        assignees.removeIf(i->i.getAssignerId().equals(assignee));
     }
 
-    public void deleteMilestone() {
+    public void deleteMilestone(){
         milestoneId = null;
     }
 
@@ -92,14 +89,5 @@ public class Issue implements OpenCloseEntity, SoftDeleteEntity {
         return this.isClosed;
     }
 
-    @Override
-    public void delete() {
-        this.isDeleted = true;
-    }
 
-    @Override
-    public void recover() {
-        this.isDeleted = false;
-
-    }
 }

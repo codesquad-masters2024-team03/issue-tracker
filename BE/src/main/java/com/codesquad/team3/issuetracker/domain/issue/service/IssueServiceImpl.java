@@ -1,6 +1,6 @@
 package com.codesquad.team3.issuetracker.domain.issue.service;
 
-import com.codesquad.team3.issuetracker.domain.issue.entity.mapping.Assigner;
+import com.codesquad.team3.issuetracker.domain.assigner.Assigner;
 import com.codesquad.team3.issuetracker.domain.comment.dto.request.CreateComment;
 import com.codesquad.team3.issuetracker.domain.comment.dto.response.CommentDetail;
 import com.codesquad.team3.issuetracker.domain.comment.service.CommentService;
@@ -11,22 +11,24 @@ import com.codesquad.team3.issuetracker.domain.issue.entity.Issue;
 import com.codesquad.team3.issuetracker.domain.issue.repository.IssueRepository;
 import com.codesquad.team3.issuetracker.domain.labels.dto.response.LabelDetail;
 import com.codesquad.team3.issuetracker.domain.labels.service.LabelService;
-import com.codesquad.team3.issuetracker.domain.issue.entity.mapping.IssueLabel;
+import com.codesquad.team3.issuetracker.domain.issuelabel.IssueLabel;
 import com.codesquad.team3.issuetracker.domain.member.dto.response.MemberDetail;
 import com.codesquad.team3.issuetracker.domain.member.service.MemberService;
 import com.codesquad.team3.issuetracker.domain.milestone.entity.Milestone;
 import com.codesquad.team3.issuetracker.domain.milestone.repository.MilestoneRepository;
 import com.codesquad.team3.issuetracker.global.exceptions.NoSuchRecordException;
+import com.codesquad.team3.issuetracker.support.enums.OpenCloseSearchFlags;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 import static com.codesquad.team3.issuetracker.support.enums.OpenCloseSearchFlags.*;
-import static com.codesquad.team3.issuetracker.support.enums.SoftDeleteSearchFlags.NOT_DELETED;
 
 @Slf4j
 @Transactional
@@ -37,43 +39,27 @@ public class IssueServiceImpl implements IssueService {
     private final IssueRepository issueRepository;
     private final CommentService commentService;
     private final LabelService labelService;
+    private final MilestoneRepository milestoneRepository;
     private final MemberService memberService;
 
-    private final MilestoneRepository milestoneRepository;
-
     @Override
-    public Issue create(CreateIssue createIssue, LocalDateTime createTime) {
+    public void create(CreateIssue createIssue) {
 
-        Issue issue = Issue.toEntity(createIssue, createTime);
+        Issue issue = Issue.toEntity(createIssue);
         Issue savedIssue = issueRepository.insert(issue);
 
         commentService.create(issue.getId(), CreateComment.toEntity(createIssue, savedIssue), true);
         List<Integer> labels = createIssue.getLabels();
 
         Set<IssueLabel> issueLabels = putLabel(labels);
-        savedIssue.setLabels(issueLabels);
-
-
         Set<Assigner> assignees = putAssignee(createIssue.getAssignee());
+
+        savedIssue.setLabels(issueLabels);
         savedIssue.setAssignees(assignees);
 
         issueRepository.update(savedIssue);
-
-        return issue;
     }
 
-    @Override
-    public void softDelete(Integer issueId) {
-        Issue issue = findIssue(issueId);
-        issueRepository.softDelete(issue);
-    }
-
-    @Override
-    public void restore(Integer issueId) {
-        Issue issue = findIssue(issueId);
-        issueRepository.recover(issue);
-
-    }
 
     @Override
     public void close(List<Integer> issueIds) throws NoSuchRecordException {
@@ -93,19 +79,22 @@ public class IssueServiceImpl implements IssueService {
 
     @Override
     public List<IssueInfo> getOpenIssues() {
-        List<Issue> issues = (List<Issue>) issueRepository.findAll(NOT_DELETED, OPEN);
-        Collections.reverse(issues);
-
+        List<Issue> issues = (List<Issue>) issueRepository.findAll(OPEN);
         return getIssueInfos(issues);
     }
 
     @Override
     public List<IssueInfo> getClosedIssues() {
-        List<Issue> issues = (List<Issue>) issueRepository.findAll(NOT_DELETED, CLOSE);
-        Collections.reverse(issues);
+        List<Issue> issues = (List<Issue>) issueRepository.findAll(CLOSE);
         return getIssueInfos(issues);
     }
 
+
+    @Override
+    public int getIssueCount(OpenCloseSearchFlags flags) {
+        return issueRepository.countByCloseCondition(flags);
+
+    }
 
     @Override
     public List<Issue> getIssueByMilestoneId(Integer milestoneId) {
@@ -115,10 +104,9 @@ public class IssueServiceImpl implements IssueService {
     @Override
     public IssueResponse getIssue(Integer id) {
         List<CommentDetail> comments = commentService.findComments(id);
-        Issue issue = findIssue(id);
+        Issue issue = issueRepository.findById(id).orElseThrow();
         List<LabelDetail> label = getLabel(issue);
-        Milestone milestone = getMilestone(issue);
-
+        Milestone milestone = milestoneRepository.findById(issue.getMilestoneId()).orElseThrow();
         List<MemberDetail> assignees = getMember(issue);
 
         return IssueResponse.toEntity(issue, comments, assignees, label, milestone);
@@ -126,15 +114,15 @@ public class IssueServiceImpl implements IssueService {
 
     @Override
     public void putAssigneeLater(List<Integer> assigneeIndex, Integer id) {
-        Issue issue = findIssue(id);
+        Issue issue = issueRepository.findById(id).orElseThrow();
         Set<Assigner> assigners = putAssignee(assigneeIndex);
-        issue.addAssignees(assigners);
+        issue.addAssignee(assigners);
         issueRepository.update(issue);
     }
 
     @Override
     public void putLabelLater(List<Integer> labelIndex, Integer id) {
-        Issue issue = findIssue(id);
+        Issue issue = issueRepository.findById(id).orElseThrow();
         Set<IssueLabel> labels = putLabel(labelIndex);
         issue.addLables(labels);
         issueRepository.update(issue);
@@ -142,35 +130,35 @@ public class IssueServiceImpl implements IssueService {
 
     @Override
     public void putMilestone(Integer id, Integer milestone) {
-        Issue issue = findIssue(id);
+        Issue issue = issueRepository.findById(id).orElseThrow();
         issue.setMilestoneId(milestone);
         issueRepository.update(issue);
     }
 
     @Override
     public void deleteAssignee(Integer id, Integer assignee) {
-        Issue issue = findIssue(id);
+        Issue issue = issueRepository.findById(id).orElseThrow();
         issue.deleteAssignee(assignee);
         issueRepository.update(issue);
     }
 
     @Override
     public void deleteLabel(Integer id, Integer label) {
-        Issue issue = findIssue(id);
+        Issue issue = issueRepository.findById(id).orElseThrow();
         issue.deleteLabel(label);
         issueRepository.update(issue);
     }
 
     @Override
     public void deleteMilestone(Integer id) {
-        Issue issue = findIssue(id);
+        Issue issue = issueRepository.findById(id).orElseThrow();
         issue.deleteMilestone();
         issueRepository.update(issue);
     }
 
     @Override
     public void updateTitle(Integer id, String newTitle) {
-        Issue issue = findIssue(id);
+        Issue issue = issueRepository.findById(id).orElseThrow();
         issue.setTitle(newTitle);
         issueRepository.update(issue);
     }
@@ -181,33 +169,28 @@ public class IssueServiceImpl implements IssueService {
     }
 
 
-    private Set<IssueLabel> putLabel(List<Integer> list) {
+    private Set<IssueLabel> putLabel(List<Integer> list){
 
         Set<IssueLabel> set = new HashSet<>();
-
-        if(list !=null) {
-            for (Integer labelId : list) {
-                set.add(new IssueLabel(labelId));
-            }
+        for(Integer labelId : list){
+            set.add(new IssueLabel(labelId));
         }
         return set;
     }
 
-    private Set<Assigner> putAssignee(List<Integer> list) {
+    private Set<Assigner> putAssignee(List<Integer> list){
         Set<Assigner> set = new HashSet<>();
-        if(list!=null) {
-            for (Integer assignerId : list) {
-                set.add(new Assigner(assignerId));
-            }
+        for(Integer assignerId : list){
+            set.add(new Assigner(assignerId));
         }
         return set;
     }
 
-    private List<MemberDetail> getMember(Issue issue) {
+    private List<MemberDetail> getMember(Issue issue){
 
         Set<Assigner> assignee = issue.getAssignees();
-        return assignee.stream().map(i -> memberService.findById(i.getAssignerId()))
-                .map(i -> new MemberDetail(i.getId(), i.getMemberId())).toList();
+        return assignee.stream().map(i->memberService.findById(i.getAssignerId()))
+                .map(i->new MemberDetail(i.getId(), i.getMemberId())).toList();
     }
 
     private List<LabelDetail> getLabel(Issue issue) {
@@ -220,21 +203,8 @@ public class IssueServiceImpl implements IssueService {
     private List<IssueInfo> getIssueInfos(List<Issue> issues) {
         return issues.stream().map(issue -> {
             List<LabelDetail> label = getLabel(issue);
-            Milestone milestone = getMilestone(issue);
+            Milestone milestone = milestoneRepository.findById(issue.getMilestoneId()).get();
             return IssueInfo.toEntity(issue, label, milestone);
         }).toList();
-    }
-
-    private Issue findIssue(Integer issueId) {
-        return issueRepository.findById(issueId).orElseThrow();
-    }
-
-    private Milestone getMilestone(Issue issue) {
-        Milestone milestone = null;
-
-        if(issue.getMilestoneId()!=null){
-            milestone = milestoneRepository.findById(issue.getMilestoneId()).get();
-        }
-        return milestone;
     }
 }
