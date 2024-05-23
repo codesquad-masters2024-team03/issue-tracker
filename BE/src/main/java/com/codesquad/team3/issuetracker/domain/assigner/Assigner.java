@@ -6,6 +6,6 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public class Assigner {
-    private final Integer issueId;
+
     private final Integer assignerId;
 }
