@@ -17,7 +17,7 @@ public class IssueDetail {
 
     public static IssueDetail toEntity(Issue issue) {
         return new IssueDetail(issue.getId(),
-                issue.getWriter(),
+                issue.getWriterId(),
                 issue.getTitle(),
                 issue.getCreateTime());
 
