@@ -2,8 +2,8 @@ package com.codesquad.team3.issuetracker.domain.milestone.service;
 
 import com.codesquad.team3.issuetracker.domain.issue.entity.Issue;
 import com.codesquad.team3.issuetracker.domain.issue.service.IssueService;
-import com.codesquad.team3.issuetracker.domain.milestone.dto.response.MilestoneDetail;
 import com.codesquad.team3.issuetracker.domain.milestone.dto.response.MilestoneInfo;
+import com.codesquad.team3.issuetracker.domain.milestone.dto.response.MilestoneResponse;
 import com.codesquad.team3.issuetracker.domain.milestone.entity.Milestone;
 import com.codesquad.team3.issuetracker.domain.milestone.repository.MilestoneRepository;
 import lombok.RequiredArgsConstructor;
@@ -47,10 +47,10 @@ public class MilestoneServiceImpl implements MilestoneService {
     }
 
     @Override
-    public List<MilestoneDetail> getMilestone(Integer id) {
+    public MilestoneResponse getMilestone(Integer id) {
         Milestone milestone = milestoneRepository.findById(id).orElseThrow(IllegalArgumentException::new);
 
-        return MilestoneDetail.toEntity(milestone);
+        return new MilestoneResponse(milestone.getId(), milestone.getTitle(), milestone.getDescription(), milestone.getDeadline());
     }
 
     @Override
@@ -75,8 +75,10 @@ public class MilestoneServiceImpl implements MilestoneService {
             closed.add(milestoneInfo);
 
         }
+
         return closed;
     }
+
 
     public MilestoneInfo createMilestoneInfo(Milestone milestone) {
 
@@ -90,7 +92,7 @@ public class MilestoneServiceImpl implements MilestoneService {
             }
         }
         int open = size - close;
-        return MilestoneInfo.toEntity(milestone, close, open);
+        return new MilestoneInfo(milestone.getId(), milestone.getTitle(), milestone.getDescription(),milestone.getDeadline(),close, open);
     }
 
 }

@@ -1,8 +1,8 @@
-package com.codesquad.team3.issuetracker.domain.milestone.controller;
+package com.codesquad.team3.issuetracker.domain.milestone;
 
 import com.codesquad.team3.issuetracker.domain.milestone.dto.request.MilestoneForm;
-import com.codesquad.team3.issuetracker.domain.milestone.dto.response.MilestoneDetail;
 import com.codesquad.team3.issuetracker.domain.milestone.dto.response.MilestoneInfo;
+import com.codesquad.team3.issuetracker.domain.milestone.dto.response.MilestoneResponse;
 import com.codesquad.team3.issuetracker.domain.milestone.entity.Milestone;
 import com.codesquad.team3.issuetracker.domain.milestone.service.MilestoneService;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/milestones")
+@RequestMapping("/milestones")
 @RequiredArgsConstructor
 public class MilestoneController {
 
@@ -28,13 +28,13 @@ public class MilestoneController {
         }
 
         Milestone milestone =
-                new Milestone(form.getTitle(), form.getDescription(), form.getDeadline());
+                new Milestone(form.getTitle(), form.getDescription(), form.getDeadLine());
         milestoneServiceImpl.create(milestone);
 
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<List<MilestoneDetail>> get(@PathVariable("id") Integer id) {
+    public ResponseEntity<MilestoneResponse> get(@PathVariable("id") Integer id) {
 
         return ResponseEntity.ok(milestoneServiceImpl.getMilestone(id));
     }
@@ -42,7 +42,7 @@ public class MilestoneController {
     @PutMapping("/{id}")
     public void updateById(@PathVariable("id") Integer id,
                        @RequestBody @Validated MilestoneForm form) {
-        Milestone newMilestone = new Milestone(form.getTitle(), form.getDescription(), form.getDeadline());
+        Milestone newMilestone = new Milestone(form.getTitle(), form.getDescription(), form.getDeadLine());
         milestoneServiceImpl.update(id, newMilestone);
 
     }
