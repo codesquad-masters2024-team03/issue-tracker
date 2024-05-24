@@ -61,4 +61,8 @@ public class Member implements SoftDeleteEntity {
     public void recover() {
         this.isDeleted = false;
     }
+
+    public boolean checkPassword(String password) {
+        return this.password.equals(password);
+    }
 }

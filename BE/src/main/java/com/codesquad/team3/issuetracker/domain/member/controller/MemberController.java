@@ -1,11 +1,16 @@
 package com.codesquad.team3.issuetracker.domain.member.controller;
 
 import com.codesquad.team3.issuetracker.domain.member.dto.request.CreateMember;
+import com.codesquad.team3.issuetracker.domain.member.dto.request.LoginMember;
 import com.codesquad.team3.issuetracker.domain.member.dto.request.UpdateMember;
-import com.codesquad.team3.issuetracker.domain.member.dto.response.ResponseMember;
+import com.codesquad.team3.issuetracker.domain.member.dto.response.LoginResponse;
+import com.codesquad.team3.issuetracker.domain.member.dto.response.MemberInfoResponse;
 import com.codesquad.team3.issuetracker.domain.member.service.MemberService;
 import java.util.List;
+import javax.naming.AuthenticationException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -25,32 +30,46 @@ public class MemberController {
     private final MemberService memberService;
 
     @PostMapping
-    public ResponseEntity<ResponseMember> signUp(@RequestBody @Validated CreateMember createRequest) {
-        ResponseMember createdMember = memberService.save(createRequest);
+    public ResponseEntity<MemberInfoResponse> signUp(@RequestBody @Validated CreateMember createRequest) {
+        MemberInfoResponse createdMember = memberService.create(createRequest);
         return ResponseEntity.ok(createdMember);
     }
 
     @GetMapping
-    public ResponseEntity<List<ResponseMember>> showAll() {
-        List<ResponseMember> allMembers = memberService.findAll();
+    public ResponseEntity<List<MemberInfoResponse>> showAll() {
+        List<MemberInfoResponse> allMembers = memberService.findAll();
         return ResponseEntity.ok(allMembers);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ResponseMember> showById(@PathVariable String id) {
-        ResponseMember targetMember = memberService.findById(Integer.parseInt(id));
+    public ResponseEntity<MemberInfoResponse> showById(@PathVariable String id) {
+        MemberInfoResponse targetMember = memberService.findById(Integer.parseInt(id));
         return ResponseEntity.ok(targetMember);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseMember> updateById(@PathVariable String id,@RequestBody @Validated UpdateMember updateRequest) {
-        ResponseMember updatedMember = memberService.update(Integer.parseInt(id), updateRequest);
+    public ResponseEntity<MemberInfoResponse> updateById(@PathVariable String id,@RequestBody @Validated UpdateMember updateRequest) {
+        MemberInfoResponse updatedMember = memberService.update(Integer.parseInt(id), updateRequest);
         return ResponseEntity.ok(updatedMember);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ResponseMember> deleteById(@PathVariable String id) {
-        ResponseMember deletedMember = memberService.softDeleteById(Integer.parseInt(id));
+    public ResponseEntity<MemberInfoResponse> deleteById(@PathVariable String id) {
+        MemberInfoResponse deletedMember = memberService.softDeleteById(Integer.parseInt(id));
         return ResponseEntity.ok(deletedMember);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginMember loginRequest) {
+        LoginResponse loginResponse;
+        try {
+            loginResponse = memberService.login(loginRequest);
+        } catch (AuthenticationException e) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + loginResponse.getAccessToken());
+        return new ResponseEntity<>(loginResponse, headers, HttpStatus.OK);
     }
 }
