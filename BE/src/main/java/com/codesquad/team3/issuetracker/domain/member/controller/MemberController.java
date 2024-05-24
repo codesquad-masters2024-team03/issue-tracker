@@ -2,14 +2,14 @@ package com.codesquad.team3.issuetracker.domain.member.controller;
 
 import com.codesquad.team3.issuetracker.domain.member.dto.request.CreateMember;
 import com.codesquad.team3.issuetracker.domain.member.dto.request.LoginMember;
-import com.codesquad.team3.issuetracker.domain.member.dto.request.RefreshToken;
 import com.codesquad.team3.issuetracker.domain.member.dto.request.UpdateMember;
-import com.codesquad.team3.issuetracker.domain.member.dto.response.TokenResponse;
+import com.codesquad.team3.issuetracker.domain.member.dto.response.LoginResponse;
 import com.codesquad.team3.issuetracker.domain.member.dto.response.MemberInfoResponse;
 import com.codesquad.team3.issuetracker.domain.member.service.MemberService;
 import java.util.List;
 import javax.naming.AuthenticationException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -24,71 +24,52 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/members")
+@RequestMapping("/members")
 public class MemberController {
 
     private final MemberService memberService;
 
     @PostMapping
-    public ResponseEntity<MemberInfoResponse> signUp(@Validated @RequestBody CreateMember createRequest) {
+    public ResponseEntity<MemberInfoResponse> signUp(@RequestBody @Validated CreateMember createRequest) {
         MemberInfoResponse createdMember = memberService.create(createRequest);
         return ResponseEntity.ok(createdMember);
     }
 
     @GetMapping
-    public ResponseEntity<List<MemberInfoResponse>> getAll() {
+    public ResponseEntity<List<MemberInfoResponse>> showAll() {
         List<MemberInfoResponse> allMembers = memberService.findAll();
         return ResponseEntity.ok(allMembers);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<MemberInfoResponse> getById(@PathVariable Integer id) {
-        MemberInfoResponse targetMember = memberService.findById(id);
+    public ResponseEntity<MemberInfoResponse> showById(@PathVariable String id) {
+        MemberInfoResponse targetMember = memberService.findById(Integer.parseInt(id));
         return ResponseEntity.ok(targetMember);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<MemberInfoResponse> updateById(@PathVariable Integer id,
-        @RequestBody @Validated UpdateMember updateRequest) {
-        MemberInfoResponse updatedMember = memberService.update(id, updateRequest);
+    public ResponseEntity<MemberInfoResponse> updateById(@PathVariable String id,@RequestBody @Validated UpdateMember updateRequest) {
+        MemberInfoResponse updatedMember = memberService.update(Integer.parseInt(id), updateRequest);
         return ResponseEntity.ok(updatedMember);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<MemberInfoResponse> deleteById(@PathVariable Integer id) {
-        MemberInfoResponse deletedMember = memberService.softDeleteById(id);
+    public ResponseEntity<MemberInfoResponse> deleteById(@PathVariable String id) {
+        MemberInfoResponse deletedMember = memberService.softDeleteById(Integer.parseInt(id));
         return ResponseEntity.ok(deletedMember);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<TokenResponse> login(@RequestBody LoginMember loginRequest) {
-        TokenResponse tokenResponse;
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginMember loginRequest) {
+        LoginResponse loginResponse;
         try {
-            tokenResponse = memberService.login(loginRequest);
-            return ResponseEntity.ok(tokenResponse);
+            loginResponse = memberService.login(loginRequest);
         } catch (AuthenticationException e) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
-    }
 
-    @PostMapping("/logout")
-    public ResponseEntity<Void> logout(@RequestBody RefreshToken refreshToken) {
-        try {
-            memberService.logout(refreshToken.token());
-            return new ResponseEntity<>(HttpStatus.OK);
-        } catch (AuthenticationException e) {
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        }
-    }
-
-    @PostMapping("/refresh-token")
-    public ResponseEntity<TokenResponse> refreshToken(@RequestBody RefreshToken refreshToken) {
-        TokenResponse tokenResponse;
-        try {
-            tokenResponse = memberService.refreshToken(refreshToken.token());
-            return ResponseEntity.ok(tokenResponse);
-        } catch (AuthenticationException e) {
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        }
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + loginResponse.getAccessToken());
+        return new ResponseEntity<>(loginResponse, headers, HttpStatus.OK);
     }
 }
