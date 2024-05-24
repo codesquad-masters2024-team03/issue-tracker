@@ -1,20 +1,27 @@
 package com.codesquad.team3.issuetracker.domain.member.service;
 
 import com.codesquad.team3.issuetracker.domain.member.dto.request.CreateMember;
+import com.codesquad.team3.issuetracker.domain.member.dto.request.LoginMember;
 import com.codesquad.team3.issuetracker.domain.member.dto.request.UpdateMember;
-import com.codesquad.team3.issuetracker.domain.member.dto.response.ResponseMember;
+import com.codesquad.team3.issuetracker.domain.member.dto.response.LoginResponse;
+import com.codesquad.team3.issuetracker.domain.member.dto.response.MemberInfoResponse;
 import java.util.List;
+import javax.naming.AuthenticationException;
 
 public interface MemberService {
 
-    ResponseMember save(CreateMember createRequest);
+    MemberInfoResponse create(CreateMember createRequest);
 
-    ResponseMember update(Integer targetId, UpdateMember updateRequest);
+    MemberInfoResponse update(Integer targetId, UpdateMember updateRequest);
 
-    ResponseMember findById(Integer targetId);
+    MemberInfoResponse findById(Integer targetId);
 
-    List<ResponseMember> findAll();
+    MemberInfoResponse findByMemberId(String memberId);
 
-    ResponseMember softDeleteById(Integer targetId);
+    List<MemberInfoResponse> findAll();
+
+    MemberInfoResponse softDeleteById(Integer targetId);
+
+    LoginResponse login(LoginMember loginRequest) throws AuthenticationException;
 
 }
