@@ -3,11 +3,11 @@ package com.codesquad.team3.issuetracker.domain.member.service;
 import com.codesquad.team3.issuetracker.domain.member.dto.request.CreateMember;
 import com.codesquad.team3.issuetracker.domain.member.dto.request.LoginMember;
 import com.codesquad.team3.issuetracker.domain.member.dto.request.UpdateMember;
-import com.codesquad.team3.issuetracker.domain.member.dto.response.LoginResponse;
+import com.codesquad.team3.issuetracker.domain.member.dto.response.TokenResponse;
 import com.codesquad.team3.issuetracker.domain.member.dto.response.MemberInfoResponse;
 import com.codesquad.team3.issuetracker.domain.member.entity.Member;
 import com.codesquad.team3.issuetracker.domain.member.repository.MemberRepository;
-import com.codesquad.team3.issuetracker.domain.jwt.util.JwtTokenProvider;
+import com.codesquad.team3.issuetracker.jwt.util.JwtUtil;
 import com.codesquad.team3.issuetracker.support.enums.SoftDeleteSearchFlags;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service;
 public class MemberServiceImpl implements MemberService {
 
     private final MemberRepository memberRepository;
-    private final JwtTokenProvider jwtTokenProvider;
+    private final JwtUtil jwtUtil;
 
     @Override
     public MemberInfoResponse create(CreateMember createRequest) {
@@ -61,21 +61,40 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public LoginResponse login(LoginMember loginRequest) throws AuthenticationException {
-        Member member = memberRepository.findByMemberId(loginRequest.getMemberId())
+    public TokenResponse login(LoginMember loginRequest) throws AuthenticationException {
+        Member targetMember = memberRepository.findByMemberId(loginRequest.getMemberId())
             .orElseThrow(() -> new AuthenticationException("회원정보가 없습니다."));
 
-        if (!member.checkPassword(loginRequest.getPassword())) {
+        if (!targetMember.checkPassword(loginRequest.getPassword())) {
             throw new AuthenticationException("비밀번호가 일치하지 않습니다.");
-        }
+        };
 
-        return createTokens(member.getMemberId());
+        TokenResponse newTokens = createTokens(targetMember.getMemberId());
+        targetMember.refreshToken(newTokens.refreshToken());
+        memberRepository.update(targetMember);
+
+        return newTokens;
     }
 
-    // 토큰 생성
-    private LoginResponse createTokens(String memberId) {
-        String accessToken = jwtTokenProvider.createAccessToken(memberId);
-        String refreshToken = jwtTokenProvider.createRefreshToken(memberId);
-        return new LoginResponse(accessToken, refreshToken);
+    @Override
+    public TokenResponse refreshToken(String refreshToken) throws AuthenticationException {
+        Member targetMember = memberRepository.findByRefreshToken(refreshToken)
+            .orElseThrow(() -> new AuthenticationException("회원정보가 없습니다."));
+
+        if (jwtUtil.validateRefreshToken(refreshToken, targetMember.getMemberId())) {
+            throw new AuthenticationException("토큰이 유효하지 않습니다.");
+        }
+
+        TokenResponse newTokens = createTokens(targetMember.getMemberId());
+        targetMember.refreshToken(newTokens.refreshToken());
+        memberRepository.update(targetMember);
+
+        return newTokens;
+    }
+
+    private TokenResponse createTokens(String memberId) {
+        String accessToken = jwtUtil.createAccessToken(memberId);
+        String refreshToken = jwtUtil.createRefreshToken(memberId);
+        return new TokenResponse(accessToken, refreshToken);
     }
 }
