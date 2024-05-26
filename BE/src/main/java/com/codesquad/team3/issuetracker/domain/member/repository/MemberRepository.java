@@ -13,5 +13,5 @@ public interface MemberRepository extends SoftDeleteCrudRepository<Member, Integ
     }
 
     Optional<Member> findByMemberId(String memberId);
-    boolean existsByMemberId(String memberId);
+    Optional<Member> findByRefreshToken(String refreshToken);
 }
