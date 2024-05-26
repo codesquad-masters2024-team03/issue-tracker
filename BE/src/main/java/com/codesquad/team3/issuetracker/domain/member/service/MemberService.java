@@ -3,7 +3,7 @@ package com.codesquad.team3.issuetracker.domain.member.service;
 import com.codesquad.team3.issuetracker.domain.member.dto.request.CreateMember;
 import com.codesquad.team3.issuetracker.domain.member.dto.request.LoginMember;
 import com.codesquad.team3.issuetracker.domain.member.dto.request.UpdateMember;
-import com.codesquad.team3.issuetracker.domain.member.dto.response.LoginResponse;
+import com.codesquad.team3.issuetracker.domain.member.dto.response.TokenResponse;
 import com.codesquad.team3.issuetracker.domain.member.dto.response.MemberInfoResponse;
 import java.util.List;
 import javax.naming.AuthenticationException;
@@ -22,6 +22,8 @@ public interface MemberService {
 
     MemberInfoResponse softDeleteById(Integer targetId);
 
-    LoginResponse login(LoginMember loginRequest) throws AuthenticationException;
+    TokenResponse login(LoginMember loginRequest) throws AuthenticationException;
+
+    TokenResponse refreshToken(String refreshToken) throws AuthenticationException;
 
 }
