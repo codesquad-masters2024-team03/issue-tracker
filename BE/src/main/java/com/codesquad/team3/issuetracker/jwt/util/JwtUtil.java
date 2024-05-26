@@ -1,6 +1,5 @@
 package com.codesquad.team3.issuetracker.jwt.util;
 
-import com.codesquad.team3.issuetracker.domain.member.dto.response.TokenResponse;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -17,12 +16,6 @@ public class JwtUtil {
     private final String refreshTokenSecretKey;
     private final Long accessTokenExpiration;
     private final Long refreshTokenExpiration;
-
-    public TokenResponse createTokens(String memberId) {
-        String accessToken = createAccessToken(memberId);
-        String refreshToken = createRefreshToken(memberId);
-        return new TokenResponse(accessToken, refreshToken);
-    }
 
     public String createAccessToken(String memberId) {
         return buildToken(memberId, accessTokenExpiration, accessTokenSecretKey);
