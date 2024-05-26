@@ -29,6 +29,7 @@ public class Member implements SoftDeleteEntity {
     @Column("join_time")
     private LocalDateTime joinTime;
     private String email;
+    private String refreshToken;
     private boolean isDeleted;
 
     public Member(CreateMember createMember) {
@@ -48,6 +49,7 @@ public class Member implements SoftDeleteEntity {
             updateMember.getBirthday(),
             joinTime,
             updateMember.getEmail(),
+            refreshToken,
             isDeleted
         );
     }
@@ -60,6 +62,14 @@ public class Member implements SoftDeleteEntity {
     @Override
     public void recover() {
         this.isDeleted = false;
+    }
+
+    public void refreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
+    }
+
+    public void deleteRefreshToken() {
+        this.refreshToken = null;
     }
 
     public boolean checkPassword(String password) {
