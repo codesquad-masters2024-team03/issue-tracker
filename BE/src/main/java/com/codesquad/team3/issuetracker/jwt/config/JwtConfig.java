@@ -1,8 +1,5 @@
-package com.codesquad.team3.issuetracker.domain.jwt.config;
+package com.codesquad.team3.issuetracker.jwt.config;
 
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
-import java.security.Key;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -10,13 +7,18 @@ import org.springframework.context.annotation.Configuration;
 public class JwtConfig {
 
     @Bean
-    public Key secretKey() {
-        return Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    public String accessTokenSecretKey() {
+        return "my_access_token_secret_key";
+    }
+
+    @Bean
+    public String refreshTokenSecretKey() {
+        return "my_refresh_token_secret_key";
     }
 
     @Bean
     public Long accessTokenExpiration() {
-        return 10 * 60 * 1000L; // 10분
+        return 30 * 60 * 1000L; // 30분
     }
 
     @Bean
