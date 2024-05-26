@@ -2,7 +2,6 @@ package com.codesquad.team3.issuetracker.domain.milestone;
 
 import com.codesquad.team3.issuetracker.domain.milestone.dto.request.MilestoneForm;
 import com.codesquad.team3.issuetracker.domain.milestone.dto.response.MilestoneInfo;
-import com.codesquad.team3.issuetracker.domain.milestone.dto.response.MilestoneList;
 import com.codesquad.team3.issuetracker.domain.milestone.dto.response.MilestoneResponse;
 import com.codesquad.team3.issuetracker.domain.milestone.entity.Milestone;
 import com.codesquad.team3.issuetracker.domain.milestone.service.MilestoneService;
@@ -59,14 +58,14 @@ public class MilestoneController {
     }
 
 
-    @GetMapping("/opend")
+    @GetMapping("/open")
     public ResponseEntity<List<MilestoneInfo>> getOpenMilestoneList() {
         List<MilestoneInfo> openMilestones = milestoneServiceImpl.getOpenMilestones();
         return ResponseEntity.ok(openMilestones);
     }
 
 
-    @GetMapping("/closed")
+    @GetMapping("/close")
     public ResponseEntity<List<MilestoneInfo>> getClosedMilestoneList() {
         List<MilestoneInfo> closedMilestones = milestoneServiceImpl.getClosedMilestones();
 

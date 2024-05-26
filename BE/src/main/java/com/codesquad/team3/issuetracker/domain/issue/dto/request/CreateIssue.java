@@ -22,13 +22,13 @@ public class CreateIssue {
     private String contents;
 
     @NotNull(message = "작성자는 필수입니다")
-    private Integer writerId;
+    private Integer writer;
 
-    private List<String> labels;
+    private List<Integer> labels;
 
     private final UploadFile file;
 
-    private final Integer assigneeId;
+    private final List<Integer> assignee;
 
-    private final Integer milestoneId;
+    private final Integer milestone;
 }

@@ -54,8 +54,7 @@ CREATE TABLE milestone (
 
 CREATE TABLE labels_in_issue (
                                  label_id int NOT NULL,
-                                 issue_id int NOT NULL,
-                                 PRIMARY KEY (label_id, issue_id)
+                                 issue_id int NOT NULL
 );
 
 CREATE TABLE member_in_issue (
@@ -70,16 +69,17 @@ CREATE TABLE uploaded_file_in_comment (
                                           PRIMARY KEY (comment_id)
 );
 
+
+
 CREATE TABLE assigner(
                          issue_id int,
-                         assigner_id int,
-                         PRIMARY KEY (issue_id, assigner_id)
+                         assigner_id int
 
 );
 
-ALTER TABLE assigner ADD FOREIGN KEY (issue_id) REFERENCES issue(id);
+ALTER TABLE assigner ADD FOREIGN KEY (issue_id) REFERENCES issue(id) ON DELETE CASCADE;
 
-ALTER TABLE assigner ADD FOREIGN KEY (assigner_id) REFERENCES member(id);
+ALTER TABLE assigner ADD FOREIGN KEY (assigner_id) REFERENCES member(id) ON DELETE CASCADE;
 
 ALTER TABLE uploaded_file_in_comment ADD FOREIGN KEY (comment_id) REFERENCES comment (id);
 
@@ -91,6 +91,7 @@ ALTER TABLE issue ADD FOREIGN KEY (milestone_id) REFERENCES milestone (id);
 
 ALTER TABLE comment ADD FOREIGN KEY (writer_id) REFERENCES member (id);
 
-ALTER TABLE labels_in_issue ADD FOREIGN KEY (label_id) REFERENCES label (id);
+ALTER TABLE labels_in_issue ADD FOREIGN KEY (label_id) REFERENCES label (id) ON DELETE CASCADE;
 
-ALTER TABLE labels_in_issue ADD FOREIGN KEY (issue_id) REFERENCES issue (id);
+ALTER TABLE labels_in_issue ADD FOREIGN KEY (issue_id) REFERENCES issue (id) ON DELETE CASCADE;
+

@@ -1,6 +1,7 @@
 package com.codesquad.team3.issuetracker.domain.labels.service;
 
 import com.codesquad.team3.issuetracker.domain.labels.dto.request.LabelForm;
+import com.codesquad.team3.issuetracker.domain.labels.dto.response.LabelDetail;
 import com.codesquad.team3.issuetracker.domain.labels.entity.Label;
 
 import java.util.List;
@@ -15,5 +16,6 @@ public interface LabelService {
 
     Label findById(Integer id);
 
+    List<LabelDetail> findByIssueId(Integer issueId);
     List<Label> findAll();
 }

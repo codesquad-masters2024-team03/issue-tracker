@@ -1,9 +1,8 @@
 package com.codesquad.team3.issuetracker.domain.milestone.dto.response;
 
-import com.codesquad.team3.issuetracker.domain.milestone.entity.Milestone;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDate;
 
@@ -11,8 +10,11 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class MilestoneInfo {
 
-
-    private Milestone milestone;
-    private MilestoneProgress progress;
+    private Integer id;
+    private String title;
+    private String description;
+    private LocalDate deadline;
+    private int countOfClosedIssue;
+    private int countOfOpenIssue;
 
 }

@@ -3,7 +3,6 @@ package com.codesquad.team3.issuetracker.domain.milestone.service;
 import com.codesquad.team3.issuetracker.domain.issue.entity.Issue;
 import com.codesquad.team3.issuetracker.domain.issue.service.IssueService;
 import com.codesquad.team3.issuetracker.domain.milestone.dto.response.MilestoneInfo;
-import com.codesquad.team3.issuetracker.domain.milestone.dto.response.MilestoneProgress;
 import com.codesquad.team3.issuetracker.domain.milestone.dto.response.MilestoneResponse;
 import com.codesquad.team3.issuetracker.domain.milestone.entity.Milestone;
 import com.codesquad.team3.issuetracker.domain.milestone.repository.MilestoneRepository;
@@ -86,21 +85,14 @@ public class MilestoneServiceImpl implements MilestoneService {
         List<Issue> issueList = issueService.getIssueByMilestoneId(milestone.getId());
         int size = issueList.size();
         int close = 0;
-        int progress = 0;
 
         for (Issue issue : issueList) {
             if (issue.isClosed()) {
                 close = close + 1;
             }
         }
-
-        if (size > 0) {
-            progress = (int) (((double) close / size) * 100);
-        } else {
-            progress = 0;
-        }
         int open = size - close;
-        return new MilestoneInfo(milestone, new MilestoneProgress(close, open, progress));
+        return new MilestoneInfo(milestone.getId(), milestone.getTitle(), milestone.getDescription(),milestone.getDeadline(),close, open);
     }
 
 }

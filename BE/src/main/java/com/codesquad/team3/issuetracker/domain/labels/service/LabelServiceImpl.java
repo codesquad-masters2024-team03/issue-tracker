@@ -1,6 +1,7 @@
 package com.codesquad.team3.issuetracker.domain.labels.service;
 
 import com.codesquad.team3.issuetracker.domain.labels.dto.request.LabelForm;
+import com.codesquad.team3.issuetracker.domain.labels.dto.response.LabelDetail;
 import com.codesquad.team3.issuetracker.domain.labels.entity.Label;
 import com.codesquad.team3.issuetracker.domain.labels.enums.ColorCode;
 import com.codesquad.team3.issuetracker.domain.labels.repository.LabelRepository;
@@ -33,7 +34,6 @@ public class LabelServiceImpl implements LabelService {
 
     }
 
-
     @Override
     public void delete(Integer id) {
         labelRepository.deleteById(id);
@@ -45,8 +45,18 @@ public class LabelServiceImpl implements LabelService {
     }
 
     @Override
+    public List<LabelDetail> findByIssueId(Integer issueId) {
+        List<Label> labels = labelRepository.findByIssueId(issueId);
+
+        return labels.stream().map(i->new LabelDetail(i.getId(), i.getTitle(), i.getColor(),i.getFontColor())).toList();
+    }
+
+    @Override
     public List<Label> findAll() {
         return StreamSupport.stream(labelRepository.findAll().spliterator(), false)
                 .collect(Collectors.toList());
     }
+
+
+
 }

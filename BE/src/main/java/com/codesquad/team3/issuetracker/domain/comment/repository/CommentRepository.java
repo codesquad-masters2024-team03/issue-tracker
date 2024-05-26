@@ -12,5 +12,4 @@ public interface CommentRepository extends SimpleCrudRepository<Comment, Integer
     @Query("select * from comment where issue_id =:issueId")
     List<Comment> findCommentsByIssueId(@Param("issueId") Integer issueId);
 
-
 }
