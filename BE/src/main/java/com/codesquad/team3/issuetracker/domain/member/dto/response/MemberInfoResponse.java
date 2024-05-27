@@ -8,6 +8,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class MemberInfoResponse {
+    private Integer id;
     private String memberId;
     private String nickname;
     private LocalDateTime birthday;
@@ -15,7 +16,8 @@ public class MemberInfoResponse {
     private String email;
 
     public static MemberInfoResponse toResponse(Member member) {
-        return new MemberInfoResponse(member.getMemberId(),
+        return new MemberInfoResponse(member.getId(),
+            member.getMemberId(),
             member.getNickname(),
             member.getBirthday(),
             member.getJoinTime(),

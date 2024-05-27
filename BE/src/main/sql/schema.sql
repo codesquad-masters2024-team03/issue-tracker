@@ -28,6 +28,7 @@ CREATE TABLE member (
                         birthday timestamp NOT NULL,
                         join_time timestamp NOT NULL,
                         email varchar(50) NOT NULL,
+                        refresh_token varchar(256),
                         is_deleted bool DEFAULT false,
                         UNIQUE (member_id, is_deleted),
                         UNIQUE (nickname, is_deleted)
