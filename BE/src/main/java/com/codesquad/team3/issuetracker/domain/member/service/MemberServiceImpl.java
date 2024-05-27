@@ -81,7 +81,7 @@ public class MemberServiceImpl implements MemberService {
         Member targetMember = memberRepository.findByRefreshToken(refreshToken)
             .orElseThrow(() -> new AuthenticationException("회원정보가 없습니다."));
 
-        if (jwtUtil.validateRefreshToken(refreshToken, targetMember.getMemberId())) {
+        if (!jwtUtil.validateRefreshToken(refreshToken, targetMember.getMemberId())) {
             throw new AuthenticationException("토큰이 유효하지 않습니다.");
         }
 
