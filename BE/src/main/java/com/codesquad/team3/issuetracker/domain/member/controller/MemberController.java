@@ -2,6 +2,7 @@ package com.codesquad.team3.issuetracker.domain.member.controller;
 
 import com.codesquad.team3.issuetracker.domain.member.dto.request.CreateMember;
 import com.codesquad.team3.issuetracker.domain.member.dto.request.LoginMember;
+import com.codesquad.team3.issuetracker.domain.member.dto.request.RefreshToken;
 import com.codesquad.team3.issuetracker.domain.member.dto.request.UpdateMember;
 import com.codesquad.team3.issuetracker.domain.member.dto.response.TokenResponse;
 import com.codesquad.team3.issuetracker.domain.member.dto.response.MemberInfoResponse;
@@ -72,10 +73,10 @@ public class MemberController {
     }
 
     @PostMapping("/refresh-token")
-    public ResponseEntity<TokenResponse> refreshToken(@RequestBody String refreshToken) {
+    public ResponseEntity<TokenResponse> refreshToken(@RequestBody RefreshToken refreshToken) {
         TokenResponse tokenResponse;
         try {
-            tokenResponse = memberService.refreshToken(refreshToken);
+            tokenResponse = memberService.refreshToken(refreshToken.getToken());
             return ResponseEntity.ok(tokenResponse);
         } catch (AuthenticationException e) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
