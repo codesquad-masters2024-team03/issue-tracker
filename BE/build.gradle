@@ -38,6 +38,8 @@ dependencies {
 	implementation group: 'org.mybatis.spring.boot', name: 'mybatis-spring-boot-starter', version: '3.0.3'
 	implementation 'org.bgee.log4jdbc-log4j2:log4jdbc-log4j2-jdbc4.1:1.16'
 
+	implementation "org.springframework.boot:spring-boot-starter-actuator"
+
 	// H2 Database
 	runtimeOnly 'com.h2database:h2'
 
