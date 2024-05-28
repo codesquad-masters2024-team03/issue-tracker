@@ -96,10 +96,11 @@ jobs:
         run: |
           IFS=',' read -r -a BACKEND_INSTANCE_IDS <<< "${{ env.BACKEND_INSTANCE_IDS }}"
           TARGET_GROUP_ARN=$(aws elbv2 describe-target-groups --names issue-tracker-backen-tg --query "TargetGroups[0].TargetGroupArn" --output text)
-          echo "Deregistering instance: ${BACKEND_INSTANCE_IDS[1]}"
-          aws elbv2 deregister-targets --target-group-arn $TARGET_GROUP_ARN --targets Id=${BACKEND_INSTANCE_IDS[1]}
           echo "Registering instance: ${BACKEND_INSTANCE_IDS[0]}"
           aws elbv2 register-targets --target-group-arn $TARGET_GROUP_ARN --targets Id=${BACKEND_INSTANCE_IDS[0]}
+          sleep 1
+          echo "Deregistering instance: ${BACKEND_INSTANCE_IDS[1]}"
+          aws elbv2 deregister-targets --target-group-arn $TARGET_GROUP_ARN --targets Id=${BACKEND_INSTANCE_IDS[1]}
 
       - name: Stop and Remove Docker and Pull and Run New Docker Image Container on Non-Selected Backend Instance
         run: |
@@ -123,10 +124,12 @@ jobs:
         run: |
           IFS=',' read -r -a BACKEND_INSTANCE_IDS <<< "${{ env.BACKEND_INSTANCE_IDS }}"
           TARGET_GROUP_ARN=$(aws elbv2 describe-target-groups --names issue-tracker-backen-tg --query "TargetGroups[0].TargetGroupArn" --output text)
-          echo "Deregistering instance: ${BACKEND_INSTANCE_IDS[0]}"
-          aws elbv2 deregister-targets --target-group-arn $TARGET_GROUP_ARN --targets Id=${BACKEND_INSTANCE_IDS[0]}
           echo "Registering instance: ${BACKEND_INSTANCE_IDS[1]}"
           aws elbv2 register-targets --target-group-arn $TARGET_GROUP_ARN --targets Id=${BACKEND_INSTANCE_IDS[1]}
+          sleep 1
+          echo "Deregistering instance: ${BACKEND_INSTANCE_IDS[0]}"
+          aws elbv2 deregister-targets --target-group-arn $TARGET_GROUP_ARN --targets Id=${BACKEND_INSTANCE_IDS[0]}
+          
 
       - name: Repeat Update for Selected Backend Instance
         run: |
