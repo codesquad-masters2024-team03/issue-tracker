@@ -105,6 +105,7 @@ jobs:
         run: |
           echo "${{ secrets.EC2_KEY_PAIR }}" | sudo tee key.pem
           sudo chmod 400 key.pem
+          sleep 30
           IFS=',' read -r -a BACKEND_INSTANCE_IDS <<< "${{ env.BACKEND_INSTANCE_IDS }}"
           NON_SELECTED_BACKEND_INSTANCE=${BACKEND_INSTANCE_IDS[1]}
           BACKEND_PRIVATE_IP=$(aws ec2 describe-instances --instance-ids $NON_SELECTED_BACKEND_INSTANCE --query "Reservations[0].Instances[0].PrivateIpAddress" --output text)
@@ -115,7 +116,7 @@ jobs:
           IMAGE_ID=$(sudo ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@$FRONTEND_PUBLIC_IP "ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@$BACKEND_PRIVATE_IP 'sudo docker images -q kimjooyoung/issue-tracker:latest'")
           sudo ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@$FRONTEND_PUBLIC_IP "ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@$BACKEND_PRIVATE_IP 'sudo docker rmi $IMAGE_ID'"
           sudo ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@$FRONTEND_PUBLIC_IP "ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@$BACKEND_PRIVATE_IP 'sudo docker pull kimjooyoung/issue-tracker:latest && sudo docker run -d --name backend -p 8080:8080 kimjooyoung/issue-tracker:latest'"
-          sleep 60 
+          sleep 30 
           sudo rm key.pem
 
       - name: Update ALB Target Group to Route Traffic to Updated Backend Instance
@@ -131,6 +132,7 @@ jobs:
         run: |
           echo "${{ secrets.EC2_KEY_PAIR }}" | sudo tee key.pem
           sudo chmod 400 key.pem
+          sleep 30
           IFS=',' read -r -a BACKEND_INSTANCE_IDS <<< "${{ env.BACKEND_INSTANCE_IDS }}"
           SELECTED_BACKEND_INSTANCE=${BACKEND_INSTANCE_IDS[0]}
           BACKEND_PRIVATE_IP=$(aws ec2 describe-instances --instance-ids $SELECTED_BACKEND_INSTANCE --query "Reservations[0].Instances[0].PrivateIpAddress" --output text)
@@ -141,7 +143,7 @@ jobs:
           IMAGE_ID=$(sudo ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@$FRONTEND_PUBLIC_IP "ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@$BACKEND_PRIVATE_IP 'sudo docker images -q kimjooyoung/issue-tracker:latest'")
           sudo ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@$FRONTEND_PUBLIC_IP "ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@$BACKEND_PRIVATE_IP 'sudo docker rmi $IMAGE_ID'"
           sudo ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@$FRONTEND_PUBLIC_IP "ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@$BACKEND_PRIVATE_IP 'sudo docker pull kimjooyoung/issue-tracker:latest && sudo docker run -d --name backend -p 8080:8080 kimjooyoung/issue-tracker:latest'"
-          sleep 60
+          sleep 30
           sudo rm key.pem
 
       - name: Confirm Both Backend Instances Handling Traffic
