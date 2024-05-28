@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/members")
+@RequestMapping("/api/members")
 public class MemberController {
 
     private final MemberService memberService;
@@ -76,7 +76,7 @@ public class MemberController {
     public ResponseEntity<TokenResponse> refreshToken(@RequestBody RefreshToken refreshToken) {
         TokenResponse tokenResponse;
         try {
-            tokenResponse = memberService.refreshToken(refreshToken.getToken());
+            tokenResponse = memberService.refreshToken(refreshToken.token());
             return ResponseEntity.ok(tokenResponse);
         } catch (AuthenticationException e) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);

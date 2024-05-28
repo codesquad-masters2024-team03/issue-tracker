@@ -1,14 +1,14 @@
 package com.codesquad.team3.issuetracker.domain.member.dto.request;
 
-import java.time.LocalDateTime;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import java.time.LocalDate;
+import org.hibernate.validator.constraints.Length;
 
-@Getter
-@AllArgsConstructor
-public class UpdateMember {
-    private final String password;
-    private final String nickname;
-    private final LocalDateTime birthday;
-    private final String email;
+public record UpdateMember(@NotBlank @Length(min=6,max=12) String password,
+                           @NotBlank @Length(min=3,max=20) String nickname,
+                           String imageUrl,
+                           @NotBlank @NotNull LocalDate birthday,
+                           @NotBlank @Length(max=50) @Email String email) {
 }
