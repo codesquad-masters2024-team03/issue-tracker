@@ -10,17 +10,17 @@ import javax.naming.AuthenticationException;
 
 public interface MemberService {
 
-    MemberInfoResponse create(CreateMember createRequest);
+    MemberInfoResponse create(CreateMember createRequest) throws IllegalArgumentException;
 
-    MemberInfoResponse update(Integer targetId, UpdateMember updateRequest);
+    MemberInfoResponse update(Integer targetId, UpdateMember updateRequest) throws IllegalArgumentException;
 
-    MemberInfoResponse findById(Integer targetId);
+    MemberInfoResponse findById(Integer targetId) throws IllegalArgumentException;
 
-    MemberInfoResponse findByMemberId(String memberId);
+    MemberInfoResponse findByMemberId(String memberId) throws IllegalArgumentException;
 
     List<MemberInfoResponse> findAll();
 
-    MemberInfoResponse softDeleteById(Integer targetId);
+    MemberInfoResponse softDeleteById(Integer targetId) throws IllegalArgumentException;
 
     TokenResponse login(LoginMember loginRequest) throws AuthenticationException;
 

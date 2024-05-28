@@ -23,27 +23,49 @@ public class MemberServiceImpl implements MemberService {
     private final JwtUtil jwtUtil;
 
     @Override
-    public MemberInfoResponse create(CreateMember createRequest) {
-        Member savedMember = memberRepository.insert(new Member(createRequest));
+    public MemberInfoResponse create(CreateMember createRequest) throws IllegalArgumentException {
+        if (memberRepository.existsByMemberId(createRequest.memberId())) {
+            throw new IllegalArgumentException("동일한 아이디가 이미 존재합니다.");
+        }
+        if (memberRepository.existsByNickname(createRequest.nickname())) {
+            throw new IllegalArgumentException("동일한 닉네임이 이미 존재합니다.");
+        }
+        if (memberRepository.existsByEmail(createRequest.email())) {
+            throw new IllegalArgumentException("동일한 이메일이 이미 존재합니다.");
+        }
+
+        Member savedMember = memberRepository.insert(createRequest.toMember());
         return MemberInfoResponse.toResponse(savedMember);
     }
 
     @Override
-    public MemberInfoResponse update(Integer targetId, UpdateMember updateRequest) {
-        Member targetMember = memberRepository.findByIdWithDeleteCondition(targetId, SoftDeleteSearchFlags.NOT_DELETED).get();
+    public MemberInfoResponse update(Integer targetId, UpdateMember updateRequest) throws IllegalArgumentException {
+        Member targetMember = memberRepository.findByIdWithDeleteCondition(targetId, SoftDeleteSearchFlags.NOT_DELETED)
+            .orElseThrow(() -> new IllegalArgumentException("회원정보가 없습니다."));
+        if (memberRepository.existsByNickname(updateRequest.nickname())) {
+            throw new IllegalArgumentException("동일한 닉네임이 이미 존재합니다.");
+        }
+        if (memberRepository.existsByEmail(updateRequest.email())) {
+            throw new IllegalArgumentException("동일한 이메일이 이미 존재합니다.");
+        }
+
         Member updatedMember = memberRepository.update(targetMember.update(updateRequest));
         return MemberInfoResponse.toResponse(updatedMember);
     }
 
     @Override
-    public MemberInfoResponse findById(Integer targetId) {
-        Member targetMember = memberRepository.findByIdWithDeleteCondition(targetId, SoftDeleteSearchFlags.NOT_DELETED).get();
+    public MemberInfoResponse findById(Integer targetId) throws IllegalArgumentException {
+        Member targetMember = memberRepository.findByIdWithDeleteCondition(targetId, SoftDeleteSearchFlags.NOT_DELETED)
+            .orElseThrow(() -> new IllegalArgumentException("회원정보가 없습니다."));
+
         return MemberInfoResponse.toResponse(targetMember);
     }
 
     @Override
-    public MemberInfoResponse findByMemberId(String memberId) {
-        Member targetMember = memberRepository.findByMemberId(memberId).get();
+    public MemberInfoResponse findByMemberId(String memberId) throws IllegalArgumentException {
+        Member targetMember = memberRepository.findByMemberId(memberId)
+            .orElseThrow(() -> new IllegalArgumentException("회원정보가 없습니다."));
+
         return MemberInfoResponse.toResponse(targetMember);
     }
 
@@ -54,20 +76,21 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public MemberInfoResponse softDeleteById(Integer targetId) {
-        Member targetMember = memberRepository.findByIdWithDeleteCondition(targetId, SoftDeleteSearchFlags.NOT_DELETED).get();
+    public MemberInfoResponse softDeleteById(Integer targetId) throws IllegalArgumentException{
+        Member targetMember = memberRepository.findByIdWithDeleteCondition(targetId, SoftDeleteSearchFlags.NOT_DELETED)
+            .orElseThrow(() -> new IllegalArgumentException("회원정보가 없습니다."));
+
         Member deletedMember = memberRepository.softDelete(targetMember);
         return MemberInfoResponse.toResponse(deletedMember);
     }
 
     @Override
     public TokenResponse login(LoginMember loginRequest) throws AuthenticationException {
-        Member targetMember = memberRepository.findByMemberId(loginRequest.getMemberId())
+        Member targetMember = memberRepository.findByMemberId(loginRequest.memberId())
             .orElseThrow(() -> new AuthenticationException("회원정보가 없습니다."));
-
-        if (!targetMember.checkPassword(loginRequest.getPassword())) {
+        if (!targetMember.checkPassword(loginRequest.password())) {
             throw new AuthenticationException("비밀번호가 일치하지 않습니다.");
-        };
+        }
 
         TokenResponse newTokens = createTokens(targetMember.getMemberId());
         targetMember.refreshToken(newTokens.refreshToken());
@@ -80,7 +103,6 @@ public class MemberServiceImpl implements MemberService {
     public TokenResponse refreshToken(String refreshToken) throws AuthenticationException {
         Member targetMember = memberRepository.findByRefreshToken(refreshToken)
             .orElseThrow(() -> new AuthenticationException("회원정보가 없습니다."));
-
         if (!jwtUtil.validateRefreshToken(refreshToken, targetMember.getMemberId())) {
             throw new AuthenticationException("토큰이 유효하지 않습니다.");
         }
