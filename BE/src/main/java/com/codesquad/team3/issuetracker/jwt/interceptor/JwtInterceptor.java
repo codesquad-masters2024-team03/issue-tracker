@@ -16,17 +16,18 @@ public class JwtInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
-        final String authorizationHeader = request.getHeader("Authorization");
-
-        if (authorizationHeader != null && authorizationHeader.startsWith(BEARER_PREFIX)) {
-            String jwt = authorizationHeader.substring(BEARER_PREFIX.length());
-            String loginId = jwtUtil.extractLoginId(jwt);
-            if (loginId != null && jwtUtil.validateAccessToken(jwt, loginId)) {
-                request.setAttribute("loginId", loginId);
-                return true;
-            }
-        }
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        return false;
+//        final String authorizationHeader = request.getHeader("Authorization");
+//
+//        if (authorizationHeader != null && authorizationHeader.startsWith(BEARER_PREFIX)) {
+//            String jwt = authorizationHeader.substring(BEARER_PREFIX.length());
+//            String loginId = jwtUtil.extractLoginId(jwt);
+//            if (loginId != null && jwtUtil.validateAccessToken(jwt, loginId)) {
+//                request.setAttribute("loginId", loginId);
+//                return true;
+//            }
+//        }
+//        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+//        return false;
+        return true;
     }
 }
