@@ -20,15 +20,15 @@ CREATE TABLE comment (
 
 CREATE TABLE member (
                         id int PRIMARY KEY AUTO_INCREMENT,
-                        member_id varchar(16),
+                        member_id varchar(16) NOT NULL,
                         oauth_id varchar(50),
                         password varchar(12),
-                        nickname varchar(20),
+                        nickname varchar(20) NOT NULL,
                         img_url varchar(50),
                         birthday timestamp,
-                        join_method varchar(20),
-                        join_time timestamp,
-                        email varchar(50),
+                        join_method varchar(20) NOT NULL,
+                        join_time timestamp NOT NULL,
+                        email varchar(50) NOT NULL,
                         refresh_token varchar(256),
                         is_deleted bool DEFAULT false
 );
