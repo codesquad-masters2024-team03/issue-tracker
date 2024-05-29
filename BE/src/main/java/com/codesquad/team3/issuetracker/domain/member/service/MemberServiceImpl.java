@@ -1,5 +1,7 @@
 package com.codesquad.team3.issuetracker.domain.member.service;
 
+import static com.codesquad.team3.issuetracker.support.enums.SoftDeleteSearchFlags.NOT_DELETED;
+
 import com.codesquad.team3.issuetracker.domain.member.dto.request.CreateMember;
 import com.codesquad.team3.issuetracker.domain.member.dto.request.LoginMember;
 import com.codesquad.team3.issuetracker.domain.member.dto.request.UpdateMember;
@@ -8,7 +10,6 @@ import com.codesquad.team3.issuetracker.domain.member.dto.response.MemberInfoRes
 import com.codesquad.team3.issuetracker.domain.member.entity.Member;
 import com.codesquad.team3.issuetracker.domain.member.repository.MemberRepository;
 import com.codesquad.team3.issuetracker.jwt.util.JwtUtil;
-import com.codesquad.team3.issuetracker.support.enums.SoftDeleteSearchFlags;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.naming.AuthenticationException;
@@ -40,7 +41,7 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public MemberInfoResponse update(Integer targetId, UpdateMember updateRequest) throws IllegalArgumentException {
-        Member targetMember = memberRepository.findByIdWithDeleteCondition(targetId, SoftDeleteSearchFlags.NOT_DELETED)
+        Member targetMember = memberRepository.findByIdWithDeleteCondition(targetId, NOT_DELETED)
             .orElseThrow(() -> new IllegalArgumentException("회원정보가 없습니다."));
         if (memberRepository.existsByNickname(updateRequest.nickname())) {
             throw new IllegalArgumentException("동일한 닉네임이 이미 존재합니다.");
@@ -55,7 +56,7 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public MemberInfoResponse findById(Integer targetId) throws IllegalArgumentException {
-        Member targetMember = memberRepository.findByIdWithDeleteCondition(targetId, SoftDeleteSearchFlags.NOT_DELETED)
+        Member targetMember = memberRepository.findByIdWithDeleteCondition(targetId, NOT_DELETED)
             .orElseThrow(() -> new IllegalArgumentException("회원정보가 없습니다."));
 
         return MemberInfoResponse.toResponse(targetMember);
@@ -71,13 +72,13 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public List<MemberInfoResponse> findAll() {
-        List<Member> allMembers = (List<Member>) memberRepository.findAll(SoftDeleteSearchFlags.NOT_DELETED);
+        List<Member> allMembers = (List<Member>) memberRepository.findAll(NOT_DELETED);
         return allMembers.stream().map(MemberInfoResponse::toResponse).collect(Collectors.toList());
     }
 
     @Override
     public MemberInfoResponse softDeleteById(Integer targetId) throws IllegalArgumentException{
-        Member targetMember = memberRepository.findByIdWithDeleteCondition(targetId, SoftDeleteSearchFlags.NOT_DELETED)
+        Member targetMember = memberRepository.findByIdWithDeleteCondition(targetId, NOT_DELETED)
             .orElseThrow(() -> new IllegalArgumentException("회원정보가 없습니다."));
 
         Member deletedMember = memberRepository.softDelete(targetMember);
@@ -97,6 +98,14 @@ public class MemberServiceImpl implements MemberService {
         memberRepository.update(targetMember);
 
         return newTokens;
+    }
+
+    @Override
+    public void logout(String refreshToken) throws AuthenticationException {
+        Member targetMember = memberRepository.findByRefreshToken(refreshToken)
+            .orElseThrow(() -> new AuthenticationException("회원정보가 없습니다."));
+        targetMember.removeRefreshToken();
+        memberRepository.update(targetMember);
     }
 
     @Override

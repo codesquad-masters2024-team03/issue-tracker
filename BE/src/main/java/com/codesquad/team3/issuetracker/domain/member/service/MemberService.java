@@ -24,6 +24,8 @@ public interface MemberService {
 
     TokenResponse login(LoginMember loginRequest) throws AuthenticationException;
 
+    void logout(String refreshToken) throws AuthenticationException;
+
     TokenResponse refreshToken(String refreshToken) throws AuthenticationException;
 
 }
