@@ -13,7 +13,7 @@ public record CreateMember(@NotBlank @Length(min=6,max=16) String memberId,
                            @NotBlank @Length(min=6,max=12) String password,
                            @NotBlank @Length(min=3,max=20) String nickname,
                            String imageUrl,
-                           @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") @NotNull LocalDate birthday,
+                           @JsonFormat(pattern = "yyyy-MM-dd") @NotNull LocalDate birthday,
                            @NotBlank @Length(max=50) @Email String email) {
 
     public Member toMember() {
