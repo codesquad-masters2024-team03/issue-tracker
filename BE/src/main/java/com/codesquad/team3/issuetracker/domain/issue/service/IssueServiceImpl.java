@@ -205,7 +205,10 @@ public class IssueServiceImpl implements IssueService {
             List<LabelDetail> label = getLabel(issue);
 
             Optional<Milestone> milestone = milestoneRepository.findById(issue.getMilestoneId());
-            return milestone.map(value -> IssueInfo.toEntity(issue, label, value)).orElseGet(() -> IssueInfo.toEntity(issue, label));
+            if (milestone.isPresent())
+                return IssueInfo.toEntity(issue, label, milestone.get());
+            else
+                return IssueInfo.toEntity(issue, label);
         }).toList();
     }
 }
