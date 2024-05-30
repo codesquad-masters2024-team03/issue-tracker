@@ -24,13 +24,13 @@ public class IssueController {
     private final IssueService issueService;
 
     @PostMapping("")
-    public ResponseEntity<CreateIssue> create(@RequestBody CreateIssue createIssue, BindingResult bindingResult) {
+    public void create(@RequestBody CreateIssue createIssue, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
 
         }
 
         issueService.create(createIssue);
-        return ResponseEntity.ok(createIssue);
+//        return ResponseEntity.ok(createIssue);
     }
 
 
