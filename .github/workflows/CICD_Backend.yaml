@@ -1,0 +1,158 @@
+name: CI/CD with Blue/Green Deployment
+
+on:
+  push:
+    branches:
+      - back-end
+
+concurrency:
+  group: issue-tracker-back-end
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: "corretto"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Create application.properties file
+        run: |
+          mkdir -p ${{ github.workspace }}/BE/src/main/resources
+          cat <<EOF > ${{ github.workspace }}/BE/src/main/resources/application.properties
+          spring.application.name=issue-tracker
+
+          # RDS 데이터베이스 연결 설정
+          spring.datasource.url=jdbc:mysql://${{ secrets.DB_ENDPOINT }}:3306/jdbc?useUnicode=true&characterEncoding=utf8
+          spring.datasource.username=${{ secrets.DB_ID }}
+          spring.datasource.password=${{ secrets.DB_PASSWORD }}
+
+          spring.jpa.database-platform=org.hibernate.dialect.MySQLDialect
+          spring.jpa.show-sql=true
+          spring.jpa.hibernate.ddl-auto=update
+          spring.jpa.properties.hibernate.format_sql=true
+
+          # 로깅 설정
+          logging.level.org.springframework.jdbc=debug
+          EOF
+
+      - name: Build with Gradle
+        run: |
+          chmod +x ${{ github.workspace }}/BE/gradlew
+          cd ${{ github.workspace }}/BE
+          ./gradlew clean build -x test
+
+      - name: Log in to Docker Hub
+        run: echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+
+      - name: Build and push Docker image
+        env:
+          DOCKER_REPOSITORY: ${{ secrets.DOCKER_REPO }}/issue-tracker
+          IMAGE_TAG: latest
+        run: |
+          cd ${{ github.workspace }}/BE
+          docker build -f src/Dockerfile -t $DOCKER_REPOSITORY:$IMAGE_TAG .
+          docker push $DOCKER_REPOSITORY:$IMAGE_TAG
+
+  deploy:
+    needs: build
+    name: Deploy to AWS
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Set up AWS CLI
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Describe Backend EC2 Instances
+        id: describe-backend-instances
+        run: |
+          BACKEND_INSTANCE_IDS=$(aws ec2 describe-instances --filters "Name=tag:Kind,Values=backend" "Name=instance-state-name,Values=running" --query "Reservations[*].Instances[*].InstanceId" --output text | tr '\n' ',')
+          echo "BACKEND_INSTANCE_IDS=${BACKEND_INSTANCE_IDS%,}" >> $GITHUB_ENV
+
+      - name: Describe Frontend EC2 Instances
+        id: describe-frontend-instances
+        run: |
+          FRONTEND_INSTANCE_IDS=$(aws ec2 describe-instances --filters "Name=tag:Kind,Values=frontend" "Name=instance-state-name,Values=running" --query "Reservations[*].Instances[*].InstanceId" --output text | tr '\n' ',')
+          echo "FRONTEND_INSTANCE_IDS=${FRONTEND_INSTANCE_IDS%,}" >> $GITHUB_ENV
+
+      - name: Update ALB Target Group to Route All Traffic to One Backend Instance
+        id: update-alb
+        run: |
+          IFS=',' read -r -a BACKEND_INSTANCE_IDS <<< "${{ env.BACKEND_INSTANCE_IDS }}"
+          TARGET_GROUP_ARN=$(aws elbv2 describe-target-groups --names issue-tracker-backen-tg --query "TargetGroups[0].TargetGroupArn" --output text)
+          echo "Registering instance: ${BACKEND_INSTANCE_IDS[0]}"
+          aws elbv2 register-targets --target-group-arn $TARGET_GROUP_ARN --targets Id=${BACKEND_INSTANCE_IDS[0]}
+          sleep 1
+          echo "Deregistering instance: ${BACKEND_INSTANCE_IDS[1]}"
+          aws elbv2 deregister-targets --target-group-arn $TARGET_GROUP_ARN --targets Id=${BACKEND_INSTANCE_IDS[1]}
+
+      - name: Stop and Remove Docker and Pull and Run New Docker Image Container on Non-Selected Backend Instance
+        run: |
+          echo "${{ secrets.EC2_KEY_PAIR }}" | sudo tee key.pem
+          sudo chmod 400 key.pem
+          sleep 30
+          IFS=',' read -r -a BACKEND_INSTANCE_IDS <<< "${{ env.BACKEND_INSTANCE_IDS }}"
+          NON_SELECTED_BACKEND_INSTANCE=${BACKEND_INSTANCE_IDS[1]}
+          BACKEND_PRIVATE_IP=$(aws ec2 describe-instances --instance-ids $NON_SELECTED_BACKEND_INSTANCE --query "Reservations[0].Instances[0].PrivateIpAddress" --output text)
+          IFS=',' read -r -a FRONTEND_INSTANCE_IDS <<< "${{ env.FRONTEND_INSTANCE_IDS }}"
+          FRONTEND_PUBLIC_IP=$(aws ec2 describe-instances --instance-ids ${FRONTEND_INSTANCE_IDS[0]} --query "Reservations[0].Instances[0].PublicIpAddress" --output text)
+          CONTAINER_ID=$(sudo ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@$FRONTEND_PUBLIC_IP "ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@$BACKEND_PRIVATE_IP 'sudo docker ps -a -q --filter name=backend'")
+          sudo ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@$FRONTEND_PUBLIC_IP "ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@$BACKEND_PRIVATE_IP 'sudo docker stop $CONTAINER_ID && sudo docker rm $CONTAINER_ID'"
+          IMAGE_ID=$(sudo ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@$FRONTEND_PUBLIC_IP "ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@$BACKEND_PRIVATE_IP 'sudo docker images -q kimjooyoung/issue-tracker:latest'")
+          sudo ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@$FRONTEND_PUBLIC_IP "ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@$BACKEND_PRIVATE_IP 'sudo docker rmi $IMAGE_ID'"
+          sudo ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@$FRONTEND_PUBLIC_IP "ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@$BACKEND_PRIVATE_IP 'sudo docker pull kimjooyoung/issue-tracker:latest && sudo docker run -d --name backend -p 8080:8080 kimjooyoung/issue-tracker:latest'"
+          sleep 30 
+          sudo rm key.pem
+
+      - name: Update ALB Target Group to Route Traffic to Updated Backend Instance
+        run: |
+          IFS=',' read -r -a BACKEND_INSTANCE_IDS <<< "${{ env.BACKEND_INSTANCE_IDS }}"
+          TARGET_GROUP_ARN=$(aws elbv2 describe-target-groups --names issue-tracker-backen-tg --query "TargetGroups[0].TargetGroupArn" --output text)
+          echo "Registering instance: ${BACKEND_INSTANCE_IDS[1]}"
+          aws elbv2 register-targets --target-group-arn $TARGET_GROUP_ARN --targets Id=${BACKEND_INSTANCE_IDS[1]}
+          sleep 1
+          echo "Deregistering instance: ${BACKEND_INSTANCE_IDS[0]}"
+          aws elbv2 deregister-targets --target-group-arn $TARGET_GROUP_ARN --targets Id=${BACKEND_INSTANCE_IDS[0]}
+          
+
+      - name: Repeat Update for Selected Backend Instance
+        run: |
+          echo "${{ secrets.EC2_KEY_PAIR }}" | sudo tee key.pem
+          sudo chmod 400 key.pem
+          sleep 30
+          IFS=',' read -r -a BACKEND_INSTANCE_IDS <<< "${{ env.BACKEND_INSTANCE_IDS }}"
+          SELECTED_BACKEND_INSTANCE=${BACKEND_INSTANCE_IDS[0]}
+          BACKEND_PRIVATE_IP=$(aws ec2 describe-instances --instance-ids $SELECTED_BACKEND_INSTANCE --query "Reservations[0].Instances[0].PrivateIpAddress" --output text)
+          IFS=',' read -r -a FRONTEND_INSTANCE_IDS <<< "${{ env.FRONTEND_INSTANCE_IDS }}"
+          FRONTEND_PUBLIC_IP=$(aws ec2 describe-instances --instance-ids ${FRONTEND_INSTANCE_IDS[1]} --query "Reservations[0].Instances[0].PublicIpAddress" --output text)
+          CONTAINER_ID=$(sudo ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@$FRONTEND_PUBLIC_IP "ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@$BACKEND_PRIVATE_IP 'sudo docker ps -a -q --filter name=backend'")
+          sudo ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@$FRONTEND_PUBLIC_IP "ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@$BACKEND_PRIVATE_IP 'sudo docker stop $CONTAINER_ID && sudo docker rm $CONTAINER_ID'"
+          IMAGE_ID=$(sudo ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@$FRONTEND_PUBLIC_IP "ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@$BACKEND_PRIVATE_IP 'sudo docker images -q kimjooyoung/issue-tracker:latest'")
+          sudo ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@$FRONTEND_PUBLIC_IP "ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@$BACKEND_PRIVATE_IP 'sudo docker rmi $IMAGE_ID'"
+          sudo ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@$FRONTEND_PUBLIC_IP "ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@$BACKEND_PRIVATE_IP 'sudo docker pull kimjooyoung/issue-tracker:latest && sudo docker run -d --name backend -p 8080:8080 kimjooyoung/issue-tracker:latest'"
+          sleep 30
+          sudo rm key.pem
+
+      - name: Confirm Both Backend Instances Handling Traffic
+        run: |
+          IFS=',' read -r -a BACKEND_INSTANCE_IDS <<< "${{ env.BACKEND_INSTANCE_IDS }}"
+          TARGET_GROUP_ARN=$(aws elbv2 describe-target-groups --names issue-tracker-backen-tg --query "TargetGroups[0].TargetGroupArn" --output text)
+          for BACKEND_INSTANCE_ID in "${BACKEND_INSTANCE_IDS[@]}"; do
+            aws elbv2 register-targets --target-group-arn $TARGET_GROUP_ARN --targets Id=$BACKEND_INSTANCE_ID
+          done

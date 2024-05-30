@@ -16,7 +16,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RestController
 @Slf4j
-@RequestMapping("/labels")
+@RequestMapping("/api/labels")
 public class LabelController {
 
     private final LabelService labelService;

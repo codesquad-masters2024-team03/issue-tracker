@@ -17,7 +17,7 @@ import java.util.List;
 
 @Slf4j
 @RestController()
-@RequestMapping("/issues")
+@RequestMapping("/api/issues")
 @RequiredArgsConstructor
 public class IssueController {
 
