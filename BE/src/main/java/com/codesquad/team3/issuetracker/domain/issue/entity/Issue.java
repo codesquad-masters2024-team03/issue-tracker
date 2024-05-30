@@ -45,15 +45,13 @@ public class Issue implements OpenCloseEntity {
     private Set<Assigner> assignees = new HashSet<>();
 
 
-    public Issue(Integer writerId, String title, LocalDateTime createTime, Integer milestoneId) {
+    public Issue(Integer writerId, String title, Integer milestoneId) {
         this.writerId = writerId;
         this.title = title;
-        this.createTime = createTime;
         this.milestoneId = milestoneId;
-    }public Issue(Integer writerId, String title, LocalDateTime createTime) {
+    }public Issue(Integer writerId, String title) {
         this.writerId = writerId;
         this.title = title;
-        this.createTime = createTime;
     }
 
     public static Issue toEntity(CreateIssue createIssue) {
@@ -61,14 +59,12 @@ public class Issue implements OpenCloseEntity {
         if (createIssue.getMilestone() == null) {
             return new Issue(
                     createIssue.getWriter(),
-                    createIssue.getTitle(),
-                    LocalDateTime.now()
+                    createIssue.getTitle()
             );
         }
 
         return new Issue(createIssue.getWriter(),
                 createIssue.getTitle(),
-                LocalDateTime.now(),
                 createIssue.getMilestone());
     }
 
