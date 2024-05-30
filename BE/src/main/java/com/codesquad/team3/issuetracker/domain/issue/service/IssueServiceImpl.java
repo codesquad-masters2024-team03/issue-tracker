@@ -43,7 +43,7 @@ public class IssueServiceImpl implements IssueService {
     public void create(CreateIssue createIssue) {
 
         Issue issue = Issue.toEntity(createIssue);
-        Issue savedIssue = issueRepository.save(issue);
+        Issue savedIssue = issueRepository.insert(issue);
 
         commentService.create(issue.getId(), CreateComment.toEntity(createIssue, savedIssue), true);
         List<Integer> labels = createIssue.getLabels();
@@ -58,7 +58,7 @@ public class IssueServiceImpl implements IssueService {
             savedIssue.setAssignees(assignees);
         }
 
-        issueRepository.save(savedIssue);
+        issueRepository.update(savedIssue);
     }
 
 
