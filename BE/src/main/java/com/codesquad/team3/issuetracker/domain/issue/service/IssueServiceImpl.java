@@ -204,11 +204,12 @@ public class IssueServiceImpl implements IssueService {
         return issues.stream().map(issue -> {
             List<LabelDetail> label = getLabel(issue);
 
-            Optional<Milestone> milestone = milestoneRepository.findById(issue.getMilestoneId());
-            if (milestone.isPresent())
+            if (issue.getMilestoneId() == null){
+                Optional<Milestone> milestone = milestoneRepository.findById(issue.getMilestoneId());
                 return IssueInfo.toEntity(issue, label, milestone.get());
-            else
+            }else {
                 return IssueInfo.toEntity(issue, label);
+            }
         }).toList();
     }
 }
