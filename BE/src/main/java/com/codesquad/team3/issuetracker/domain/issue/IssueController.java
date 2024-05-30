@@ -24,7 +24,7 @@ public class IssueController {
     private final IssueService issueService;
 
     @PostMapping("")
-    public void create(@RequestBody @Valid CreateIssue createIssue, BindingResult bindingResult) {
+    public void create(@RequestBody CreateIssue createIssue, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
 
         }

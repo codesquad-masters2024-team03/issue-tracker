@@ -76,32 +76,18 @@ public class IssueServiceImpl implements IssueService {
 
     @Override
     public List<IssueInfo> getOpenIssues() {
-        Iterable<Issue> findIssues = issueRepository.findAll(OPEN);
-        Iterator<Issue> iterator = findIssues.iterator();
+        List<Issue> findIssues = issueRepository.findAllOpenIssues();
 
-        List<Issue> issues = new ArrayList<>();
-
-        while (iterator.hasNext()) {
-            issues.add(iterator.next());
-        }
-
-        return getIssueInfos(issues);
+        return getIssueInfos(findIssues);
     }
 
     @Override
     public List<IssueInfo> getClosedIssues() {
-        Iterable<Issue> findIssues = issueRepository.findAll(CLOSE);
-        Iterator<Issue> iterator = findIssues.iterator();
+        List<Issue> findIssues = issueRepository.findAllCloseIssues();
 
-        List<Issue> issues = new ArrayList<>();
-
-        while (iterator.hasNext()) {
-            issues.add(iterator.next());
-        }
-
-        return getIssueInfos(issues);
+        return getIssueInfos(findIssues);
     }
-    
+
 
 
     @Override
