@@ -1,12 +1,7 @@
 package com.codesquad.team3.issuetracker.domain.member.dto.request;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.NotBlank;
 
-@Getter
-@NoArgsConstructor
-@AllArgsConstructor
-public class RefreshToken {
-    private String token;
+public record RefreshToken(@NotBlank String token) {
+
 }

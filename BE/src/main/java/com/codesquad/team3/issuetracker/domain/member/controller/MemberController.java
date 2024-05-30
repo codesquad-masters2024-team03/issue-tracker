@@ -42,22 +42,21 @@ public class MemberController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<MemberInfoResponse> getById(@PathVariable String id) {
-        MemberInfoResponse targetMember = memberService.findById(Integer.parseInt(id));
+    public ResponseEntity<MemberInfoResponse> getById(@PathVariable Integer id) {
+        MemberInfoResponse targetMember = memberService.findById(id);
         return ResponseEntity.ok(targetMember);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<MemberInfoResponse> updateById(@PathVariable String id,
+    public ResponseEntity<MemberInfoResponse> updateById(@PathVariable Integer id,
         @RequestBody @Validated UpdateMember updateRequest) {
-        MemberInfoResponse updatedMember = memberService.update(Integer.parseInt(id),
-            updateRequest);
+        MemberInfoResponse updatedMember = memberService.update(id, updateRequest);
         return ResponseEntity.ok(updatedMember);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<MemberInfoResponse> deleteById(@PathVariable String id) {
-        MemberInfoResponse deletedMember = memberService.softDeleteById(Integer.parseInt(id));
+    public ResponseEntity<MemberInfoResponse> deleteById(@PathVariable Integer id) {
+        MemberInfoResponse deletedMember = memberService.softDeleteById(id);
         return ResponseEntity.ok(deletedMember);
     }
 
@@ -72,11 +71,21 @@ public class MemberController {
         }
     }
 
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(@RequestBody RefreshToken refreshToken) {
+        try {
+            memberService.logout(refreshToken.token());
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (AuthenticationException e) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+    }
+
     @PostMapping("/refresh-token")
     public ResponseEntity<TokenResponse> refreshToken(@RequestBody RefreshToken refreshToken) {
         TokenResponse tokenResponse;
         try {
-            tokenResponse = memberService.refreshToken(refreshToken.getToken());
+            tokenResponse = memberService.refreshToken(refreshToken.token());
             return ResponseEntity.ok(tokenResponse);
         } catch (AuthenticationException e) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);

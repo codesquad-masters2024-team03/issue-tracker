@@ -15,23 +15,22 @@ CREATE TABLE comment (
                          create_time timestamp NOT NULL,
                          issue_id int NOT NULL ,
                          is_deleted bool DEFAULT false,
-
                          is_primary bool DEFAULT false
 );
 
 CREATE TABLE member (
                         id int PRIMARY KEY AUTO_INCREMENT,
                         member_id varchar(16) NOT NULL,
-                        password varchar(12) NOT NULL,
-                        nickname varchar(20) NOT NULL ,
-                        profile_img varchar(50),
-                        birthday timestamp NOT NULL,
+                        oauth_id varchar(50),
+                        password varchar(12),
+                        nickname varchar(20) NOT NULL,
+                        image_url varchar(256),
+                        birthday date,
+                        join_method varchar(20) NOT NULL,
                         join_time timestamp NOT NULL,
-                        email varchar(50) NOT NULL,
+                        email varchar(50),
                         refresh_token varchar(256),
-                        is_deleted bool DEFAULT false,
-                        UNIQUE (member_id, is_deleted),
-                        UNIQUE (nickname, is_deleted)
+                        is_deleted bool DEFAULT false
 );
 
 CREATE TABLE label (
