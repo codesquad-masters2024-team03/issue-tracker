@@ -3,7 +3,7 @@ name: CI/CD with Blue/Green Deployment
 on:
   push:
     branches:
-      - back-end
+      - deploy
 
 concurrency:
   group: issue-tracker-back-end
