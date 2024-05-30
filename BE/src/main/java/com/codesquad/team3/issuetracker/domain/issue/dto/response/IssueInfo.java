@@ -4,6 +4,7 @@ import com.codesquad.team3.issuetracker.domain.issue.entity.Issue;
 import com.codesquad.team3.issuetracker.domain.labels.dto.response.LabelDetail;
 import com.codesquad.team3.issuetracker.domain.labels.entity.Label;
 import com.codesquad.team3.issuetracker.domain.milestone.entity.Milestone;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -11,6 +12,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
+@AllArgsConstructor
 @RequiredArgsConstructor
 public class IssueInfo {
 
