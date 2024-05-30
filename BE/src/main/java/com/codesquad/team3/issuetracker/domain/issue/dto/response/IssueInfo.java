@@ -19,9 +19,13 @@ public class IssueInfo {
     private final Integer writer;
     private final LocalDateTime createTime;
     private final List<LabelDetail> lables;
-    private final String milestoneTitle;
+    private String milestoneTitle;
 
     public static IssueInfo toEntity(Issue issue, List<LabelDetail> label, Milestone milestone) {
         return new IssueInfo(issue.getId(), issue.getTitle(), issue.getWriterId(), issue.getCreateTime(), label, milestone.getTitle());
+    }
+
+    public static IssueInfo toEntity(Issue issue, List<LabelDetail> label) {
+        return new IssueInfo(issue.getId(), issue.getTitle(), issue.getWriterId(), issue.getCreateTime(), label);
     }
 }

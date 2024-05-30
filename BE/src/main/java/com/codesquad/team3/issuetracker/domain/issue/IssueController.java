@@ -58,18 +58,18 @@ public class IssueController {
         return ResponseEntity.ok(issue);
     }
 
-    @GetMapping("/open")
-    public ResponseEntity<List<IssueInfo>> getClosedIssues() {
-        List<IssueInfo> openIssues = issueService.getOpenIssues();
-
-        return ResponseEntity.ok(openIssues);
-    }
-
     @GetMapping("/close")
-    public ResponseEntity<List<IssueInfo>> getOpenIssues() {
+    public ResponseEntity<List<IssueInfo>> getClosedIssues() {
         List<IssueInfo> closedIssues = issueService.getClosedIssues();
 
         return ResponseEntity.ok(closedIssues);
+    }
+
+    @GetMapping("/open")
+    public ResponseEntity<List<IssueInfo>> getOpenIssues() {
+        List<IssueInfo> openIssues = issueService.getOpenIssues();
+
+        return ResponseEntity.ok(openIssues);
     }
 
     @PutMapping("/assignees/{id}")
