@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
-@Table(name="ISSUE")
+@Table(name="issue")
 @Getter
 @Setter
 @NoArgsConstructor
