@@ -77,7 +77,7 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public MemberInfoResponse softDeleteById(Integer targetId) throws IllegalArgumentException{
+    public MemberInfoResponse softDeleteById(Integer targetId) throws IllegalArgumentException {
         Member targetMember = memberRepository.findByIdWithDeleteCondition(targetId, NOT_DELETED)
             .orElseThrow(() -> new IllegalArgumentException("회원정보가 없습니다."));
 
@@ -93,7 +93,7 @@ public class MemberServiceImpl implements MemberService {
             throw new AuthenticationException("비밀번호가 일치하지 않습니다.");
         }
 
-        TokenResponse newTokens = createTokens(targetMember.getMemberId());
+        TokenResponse newTokens = jwtUtil.createTokens(targetMember.getMemberId());
         targetMember.refreshToken(newTokens.refreshToken());
         memberRepository.update(targetMember);
 
@@ -116,16 +116,10 @@ public class MemberServiceImpl implements MemberService {
             throw new AuthenticationException("토큰이 유효하지 않습니다.");
         }
 
-        TokenResponse newTokens = createTokens(targetMember.getMemberId());
+        TokenResponse newTokens = jwtUtil.createTokens(targetMember.getMemberId());
         targetMember.refreshToken(newTokens.refreshToken());
         memberRepository.update(targetMember);
 
         return newTokens;
-    }
-
-    private TokenResponse createTokens(String memberId) {
-        String accessToken = jwtUtil.createAccessToken(memberId);
-        String refreshToken = jwtUtil.createRefreshToken(memberId);
-        return new TokenResponse(accessToken, refreshToken);
     }
 }
