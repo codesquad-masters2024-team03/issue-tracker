@@ -24,13 +24,15 @@ public class IssueController {
     private final IssueService issueService;
 
     @PostMapping("")
-    public void create(@RequestBody CreateIssue createIssue, BindingResult bindingResult) {
+    public ResponseEntity<CreateIssue> create(@RequestBody CreateIssue createIssue, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
 
         }
 
         issueService.create(createIssue);
+        return ResponseEntity.ok(createIssue);
     }
+
 
     @PutMapping("/close/{id}")
     public void close(@PathVariable("id") Integer id) throws NoSuchRecordException {

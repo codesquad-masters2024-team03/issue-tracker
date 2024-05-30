@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.MappedCollection;
 import org.springframework.data.relational.core.mapping.Table;
 
@@ -24,12 +25,17 @@ public class Issue implements OpenCloseEntity {
 
     @Id
     private Integer id;
+    @Column("writer_id")
     private Integer writerId;
     private String title;
+    @Column("create_time")
     private LocalDateTime createTime;
 
+    @Column("milestone_id")
     private Integer milestoneId;
+    @Column("is_closed")
     private boolean isClosed;
+    @Column("is_deleted")
     private boolean isDeleted;
 
     @MappedCollection(idColumn = "issue_id")
