@@ -24,11 +24,11 @@ CREATE TABLE member (
                         oauth_id varchar(50),
                         password varchar(12),
                         nickname varchar(20) NOT NULL,
-                        image_url varchar(50),
+                        image_url varchar(256),
                         birthday date,
                         join_method varchar(20) NOT NULL,
                         join_time timestamp NOT NULL,
-                        email varchar(50) NOT NULL,
+                        email varchar(50),
                         refresh_token varchar(256),
                         is_deleted bool DEFAULT false
 );
