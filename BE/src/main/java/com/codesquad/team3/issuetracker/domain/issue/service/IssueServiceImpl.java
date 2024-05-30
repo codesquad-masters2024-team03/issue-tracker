@@ -48,12 +48,12 @@ public class IssueServiceImpl implements IssueService {
         commentService.create(issue.getId(), CreateComment.toEntity(createIssue, savedIssue), true);
         List<Integer> labels = createIssue.getLabels();
 
-        if (!createIssue.getLabels().isEmpty()) {
+        if (labels != null && !createIssue.getLabels().isEmpty()) {
             Set<IssueLabel> issueLabels = putLabel(labels);
             savedIssue.setLabels(issueLabels);
         }
 
-        if (createIssue.getAssignee() != null) {
+        if (createIssue.getAssignee() != null && !createIssue.getAssignee().isEmpty()) {
             Set<Assigner> assignees = putAssignee(createIssue.getAssignee());
             savedIssue.setAssignees(assignees);
         }
