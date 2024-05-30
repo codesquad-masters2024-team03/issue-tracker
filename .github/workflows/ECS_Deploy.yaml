@@ -33,6 +33,6 @@ jobs:
       
     - name: Build, tag, and push image to Amazon ECR
       run: |
-        docker build -t issue-tracker-prod-ecr .
+        docker build -f src/Dockerfile -t issue-tracker-prod-ecr .
         docker tag issue-tracker-prod-ecr:latest 891377102486.dkr.ecr.ap-northeast-2.amazonaws.com/issue-tracker-prod-ecr:latest
         docker push 891377102486.dkr.ecr.ap-northeast-2.amazonaws.com/issue-tracker-prod-ecr:latest
