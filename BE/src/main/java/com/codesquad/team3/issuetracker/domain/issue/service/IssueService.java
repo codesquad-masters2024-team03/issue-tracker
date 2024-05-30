@@ -22,7 +22,7 @@ public interface IssueService {
 
     void open(List<Integer> issueIds) throws NoSuchRecordException;
 
-    public void close(List<Integer> issueIds) throws NoSuchRecordException;
+    void close(List<Integer> issueIds) throws NoSuchRecordException;
 
     List<Issue> getIssueByMilestoneId(Integer milestoneId);
 

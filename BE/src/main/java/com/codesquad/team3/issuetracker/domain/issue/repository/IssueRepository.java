@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface IssueRepository extends OpenCloseCrudRepository<Issue, Integer> {
 
-    @Query("select * from Issue where milestone_id =:milestoneId")
+    @Query("select * from issue where milestone_id =:milestoneId")
     List<Issue> getIssuesByMilestoneId(@Param("milestoneId") Integer milestoneId);
 
 
