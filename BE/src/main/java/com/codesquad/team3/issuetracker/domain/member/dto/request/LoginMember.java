@@ -1,11 +1,7 @@
 package com.codesquad.team3.issuetracker.domain.member.dto.request;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import jakarta.validation.constraints.NotBlank;
 
-@Getter
-@AllArgsConstructor
-public class LoginMember {
-    private final String memberId;
-    private final String password;
+public record LoginMember(@NotBlank String memberId, @NotBlank String password) {
+
 }
