@@ -8,12 +8,12 @@ public class JwtConfig {
 
     @Bean
     public String accessTokenSecretKey() {
-        return "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+        return "mySecureAccessTokenSecretKeyForJWTGeneration123456";
     }
 
     @Bean
     public String refreshTokenSecretKey() {
-        return "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+        return "mySecureRefreshTokenSecretKeyForJWTGeneration123456";
     }
 
     @Bean
