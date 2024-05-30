@@ -23,10 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static com.codesquad.team3.issuetracker.support.enums.OpenCloseSearchFlags.*;
 
@@ -79,15 +76,32 @@ public class IssueServiceImpl implements IssueService {
 
     @Override
     public List<IssueInfo> getOpenIssues() {
-        List<Issue> issues = (List<Issue>) issueRepository.findAll(OPEN);
+        Iterable<Issue> findIssues = issueRepository.findAll(OPEN);
+        Iterator<Issue> iterator = findIssues.iterator();
+
+        List<Issue> issues = new ArrayList<>();
+
+        while (iterator.hasNext()) {
+            issues.add(iterator.next());
+        }
+
         return getIssueInfos(issues);
     }
 
     @Override
     public List<IssueInfo> getClosedIssues() {
-        List<Issue> issues = (List<Issue>) issueRepository.findAll(CLOSE);
+        Iterable<Issue> findIssues = issueRepository.findAll(CLOSE);
+        Iterator<Issue> iterator = findIssues.iterator();
+
+        List<Issue> issues = new ArrayList<>();
+
+        while (iterator.hasNext()) {
+            issues.add(iterator.next());
+        }
+
         return getIssueInfos(issues);
     }
+    
 
 
     @Override
