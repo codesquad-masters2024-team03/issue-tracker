@@ -48,11 +48,15 @@ public class IssueServiceImpl implements IssueService {
         commentService.create(issue.getId(), CreateComment.toEntity(createIssue, savedIssue), true);
         List<Integer> labels = createIssue.getLabels();
 
-        Set<IssueLabel> issueLabels = putLabel(labels);
-        Set<Assigner> assignees = putAssignee(createIssue.getAssignee());
+        if (!createIssue.getLabels().isEmpty()) {
+            Set<IssueLabel> issueLabels = putLabel(labels);
+            savedIssue.setLabels(issueLabels);
+        }
 
-        savedIssue.setLabels(issueLabels);
-        savedIssue.setAssignees(assignees);
+        if (createIssue.getAssignee() != null) {
+            Set<Assigner> assignees = putAssignee(createIssue.getAssignee());
+            savedIssue.setAssignees(assignees);
+        }
 
         issueRepository.update(savedIssue);
     }

@@ -44,9 +44,21 @@ public class Issue implements OpenCloseEntity {
         this.title = title;
         this.createTime = createTime;
         this.milestoneId = milestoneId;
+    }public Issue(Integer writerId, String title, LocalDateTime createTime) {
+        this.writerId = writerId;
+        this.title = title;
+        this.createTime = createTime;
     }
 
     public static Issue toEntity(CreateIssue createIssue) {
+
+        if (createIssue.getMilestone() == null) {
+            return new Issue(
+                    createIssue.getWriter(),
+                    createIssue.getTitle(),
+                    LocalDateTime.now()
+            );
+        }
 
         return new Issue(createIssue.getWriter(),
                 createIssue.getTitle(),
