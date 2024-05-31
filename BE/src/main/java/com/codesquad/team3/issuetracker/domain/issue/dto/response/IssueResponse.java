@@ -19,11 +19,15 @@ public class IssueResponse {
     private final List<CommentDetail> comments;
     private final List<MemberDetail> assignee;
     private final List<LabelDetail> labels;
-    private final MilestoneDetail milestone;
+    private final List<MilestoneDetail> milestone;
 
 
     public static IssueResponse toEntity(Issue issue, List<CommentDetail> comments, List<MemberDetail> assignees, List<LabelDetail> label, Milestone milestone) {
         return new IssueResponse(IssueDetail.toEntity(issue), comments, assignees, label, MilestoneDetail.toEntity(milestone));
 
+    }
+
+    public String getContents(){
+        return comments.get(0).getContents();
     }
 }

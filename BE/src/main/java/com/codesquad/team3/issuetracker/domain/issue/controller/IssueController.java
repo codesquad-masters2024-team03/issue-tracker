@@ -1,4 +1,4 @@
-package com.codesquad.team3.issuetracker.domain.issue;
+package com.codesquad.team3.issuetracker.domain.issue.controller;
 
 import com.codesquad.team3.issuetracker.domain.issue.dto.request.CreateIssue;
 import com.codesquad.team3.issuetracker.domain.issue.dto.response.IssueInfo;
@@ -12,24 +12,24 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
 @RestController()
-@RequestMapping("/issues")
+@RequestMapping("/api/issues")
 @RequiredArgsConstructor
 public class IssueController {
 
     private final IssueService issueService;
 
-    @PostMapping("")
+    @PostMapping
     public void create(@RequestBody @Valid CreateIssue createIssue, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
 
         }
-
-        issueService.create(createIssue);
+        issueService.create(createIssue, LocalDateTime.now());
     }
 
     @PutMapping("/close/{id}")
@@ -50,6 +50,16 @@ public class IssueController {
     @PutMapping("/open")
     public void openIssues(@RequestBody List<Integer> id) throws NoSuchRecordException {
         issueService.open(id);
+    }
+
+    @DeleteMapping("/{id}")
+    public void softDelete(@PathVariable("id")Integer id){
+        issueService.softDelete(id);
+    }
+
+    @PutMapping("/restore/{id}")
+    public void restore(@PathVariable("id")Integer id){
+        issueService.restore(id);
     }
 
     @GetMapping("/{id}")
@@ -89,7 +99,6 @@ public class IssueController {
         issueService.putMilestone(id, milestone);
     }
 
-
     @DeleteMapping("/assignees/{id}")
     public void deleteAssignee(@PathVariable("id") Integer id, @RequestBody Integer assignee) {
         issueService.deleteAssignee(id, assignee);
@@ -117,6 +126,5 @@ public class IssueController {
         newContents = newContents.replaceAll("^\"|\"$", "");
         issueService.updateContents(id, newContents);
     }
-
 
 }

@@ -5,24 +5,26 @@ import com.codesquad.team3.issuetracker.domain.issue.dto.response.IssueInfo;
 import com.codesquad.team3.issuetracker.domain.issue.dto.response.IssueResponse;
 import com.codesquad.team3.issuetracker.domain.issue.entity.Issue;
 import com.codesquad.team3.issuetracker.global.exceptions.NoSuchRecordException;
-import com.codesquad.team3.issuetracker.support.enums.OpenCloseSearchFlags;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface IssueService {
 
-    void create(CreateIssue createIssue);
+    Issue create(CreateIssue createIssue, LocalDateTime createTime);
 
+    void softDelete(Integer issueId);
+
+    void restore(Integer issueId);
 
     List<IssueInfo> getOpenIssues();
 
     List<IssueInfo> getClosedIssues();
 
-    int getIssueCount(OpenCloseSearchFlags flags);
 
     void open(List<Integer> issueIds) throws NoSuchRecordException;
 
-    public void close(List<Integer> issueIds) throws NoSuchRecordException;
+    void close(List<Integer> issueIds) throws NoSuchRecordException;
 
     List<Issue> getIssueByMilestoneId(Integer milestoneId);
 
