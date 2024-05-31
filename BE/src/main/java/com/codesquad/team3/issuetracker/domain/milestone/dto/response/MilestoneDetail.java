@@ -5,6 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 @AllArgsConstructor
 @Getter
@@ -13,10 +16,21 @@ public class MilestoneDetail {
     private Integer id;
     private String title;
     private String description;
-    private LocalDate deadline;
+    private List<LocalDate> deadline;
 
-    public static MilestoneDetail toEntity(Milestone milestone) {
-        return new MilestoneDetail(milestone.getId(), milestone.getTitle(), milestone.getDescription(), milestone.getDeadline());
+    public static List<MilestoneDetail> toEntity(Milestone milestone) {
+        if(milestone==null){
+           return new ArrayList<>();
+        }
+        return createEntity(milestone);
 
+    }
+
+    private static List<MilestoneDetail> createEntity(Milestone milestone){
+        if(milestone.getDeadline()==null){
+            return List.of(new MilestoneDetail(milestone.getId(), milestone.getTitle(), milestone.getDescription(), new ArrayList<>()));
+        }
+
+        return List.of(new MilestoneDetail(milestone.getId(), milestone.getTitle(), milestone.getDescription(), List.of(milestone.getDeadline())));
     }
 }

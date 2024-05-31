@@ -2,6 +2,7 @@ package com.codesquad.team3.issuetracker.domain.milestone.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -17,6 +18,5 @@ public class MilestoneForm {
     private String description;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
-    private LocalDate deadLine;
-
+    private LocalDate deadline;
 }

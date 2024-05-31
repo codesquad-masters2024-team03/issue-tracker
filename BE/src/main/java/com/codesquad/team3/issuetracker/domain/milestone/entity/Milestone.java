@@ -11,7 +11,7 @@ import java.time.LocalDate;
 
 @Getter
 @NoArgsConstructor
-@Table(name = "milestone")
+@Table("MILESTONE")
 public class Milestone implements OpenCloseEntity {
 
     @Id
@@ -31,14 +31,14 @@ public class Milestone implements OpenCloseEntity {
         isClosed=false;
     }
 
-    public Milestone(String title, String description, LocalDate deadline) {
+    public Milestone(Integer id, String title, String description, LocalDate deadline) {
+        this.id = id;
         this.title = title;
         this.description = description;
         this.deadline = deadline;
     }
 
-    public Milestone(Integer id, String title, String description, LocalDate deadline) {
-        this.id = id;
+    public Milestone(String title, String description, LocalDate deadline) {
         this.title = title;
         this.description = description;
         this.deadline = deadline;
