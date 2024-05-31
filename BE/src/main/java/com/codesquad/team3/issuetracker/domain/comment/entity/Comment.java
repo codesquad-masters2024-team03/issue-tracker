@@ -1,6 +1,6 @@
 package com.codesquad.team3.issuetracker.domain.comment.entity;
 
-import lombok.AllArgsConstructor;
+import com.codesquad.team3.issuetracker.global.entity.SoftDeleteEntity;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
@@ -9,15 +9,14 @@ import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.LocalDateTime;
 
-@Table("comment")
+@Table("COMMENT")
 @Getter
 @NoArgsConstructor
-@AllArgsConstructor
-public class Comment {
+public class Comment implements SoftDeleteEntity {
 
     @Id
     private Integer id;
-    @Column("writer_id")
+    @Column("WRITER_ID")
     private Integer writer;
     private String contents;
     private Integer issueId;
@@ -26,27 +25,25 @@ public class Comment {
     private boolean isDeleted;
     private boolean isPrimary;
 
-    public Comment(Integer writer, String contents, Integer issueId,  LocalDateTime createTime, boolean isPrimary) {
+    public Comment(Integer writer, String contents, Integer issueId, LocalDateTime createTime, boolean isPrimary) {
         this.writer = writer;
         this.contents = contents;
         this.issueId = issueId;
-
         this.createTime = createTime;
         this.isPrimary = isPrimary;
     }
 
-    public Comment(Integer id, Integer writer, String contents, Integer issueId, LocalDateTime createTime) {
-        this.id = id;
-        this.writer = writer;
-        this.contents = contents;
-        this.issueId = issueId;
-        this.createTime = createTime;
-
+    public void update(String newContents){
+        this.contents=newContents;
     }
 
-    public static Comment  updatedComment(Comment comment, String newContents){
-        return new Comment(comment.getId(), comment.getWriter(), newContents, comment.getIssueId(), comment.getCreateTime(),
-                comment.isDeleted(), comment.isPrimary());
+    @Override
+    public void delete() {
+        this.isDeleted = true;
     }
 
+    @Override
+    public void recover() {
+        this.isDeleted = false;
+    }
 }

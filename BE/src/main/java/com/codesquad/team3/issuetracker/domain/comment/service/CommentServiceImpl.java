@@ -33,35 +33,52 @@ public class CommentServiceImpl implements CommentService {
 
 
     @Override
-    public void delete(Integer id) {
+    public void softDelete(Integer id) {
 
         Comment comment = commentRepository.findById(id).orElseThrow();
         if(comment.isPrimary()){
             return;
             //예외 처리
         }
-        commentRepository.deleteById(id);
+        commentRepository.softDelete(comment);
     }
 
     @Override
-    public void update(UpdateComment form) {
+    public void restore(Integer id) {
+        Comment comment = commentRepository.findById(id).orElseThrow();
+        commentRepository.recover(comment);
+    }
 
-        Comment comment = commentRepository.findById(form.getCommentId()).orElseThrow();
-        commentRepository.update(new Comment(comment.getId(), comment.getWriter(), form.getContents(), comment.getIssueId(), comment.getCreateTime()));
+    @Override
+    public void update(Integer id, UpdateComment form) {
+
+        Comment comment = commentRepository.findById(id).orElseThrow();
+        comment.update(form.getContents());
+        commentRepository.update(comment);
     }
 
     @Override
     public void updatePrimary(Integer id, String newContent) {
-        List<Comment> commentsByIssueId = commentRepository.findCommentsByIssueId(id);
-        commentRepository.update(Comment.updatedComment(commentsByIssueId.get(0), newContent));
+        List<Comment> commentsByIssueId = commentRepository.findCommentsByIssueId(id, false);
+        Comment primaryComment = commentsByIssueId.get(0);
+
+        //모든 이슈마다 제일 처음에 달린 comment가 그 이슈의 본문이다.
+
+        primaryComment.update(newContent);
+        commentRepository.update(primaryComment);
 
     }
 
     @Override
     public List<CommentDetail> findComments(Integer id) {
-        List<Comment> comments = commentRepository.findCommentsByIssueId(id);
+        List<Comment> comments = commentRepository.findCommentsByIssueId(id, false);
 
-        return comments.stream().map(i->new CommentDetail(i.getId(), i.getWriter(), i.getContents(), i.getIssueId(),  i.getCreateTime(), i.isPrimary()))
+        return comments.stream()
+                .map(i->new CommentDetail(i.getId(),
+                        i.getWriter(),
+                        i.getContents(),
+                        i.getCreateTime(),
+                        i.isPrimary()))
                 .toList();
     }
 

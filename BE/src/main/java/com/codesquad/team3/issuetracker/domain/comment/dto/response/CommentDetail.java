@@ -1,19 +1,17 @@
 package com.codesquad.team3.issuetracker.domain.comment.dto.response;
 
-
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Getter
 public class CommentDetail {
 
-    private Integer id;
-    private Integer writer;
-    private String contents;
-    private Integer issueId;
-    private LocalDateTime createTime;
-    private boolean isPrimary;
+    private final Integer id;
+    private final Integer writer;
+    private final String contents;
+    private final LocalDateTime createTime;
+    private final boolean isPrimary;
 }

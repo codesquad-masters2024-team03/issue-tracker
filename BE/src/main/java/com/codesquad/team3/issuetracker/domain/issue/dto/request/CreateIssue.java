@@ -13,15 +13,15 @@ import java.util.List;
 @Getter
 public class CreateIssue {
 
-    @NotBlank(message = "이슈 제목은 필수입니다")
-    @Size(min = 1, max = 60, message = "제목은 1 ~ 60 글자여야합니다")
+    @NotBlank(message ="제목은 필수입니다")
+    @Size(min = 1, max = 60)
     private String title;
 
-    @NotBlank(message = "이슈 내용은 필수 입니다")
-    @Size(min = 1, max = 500, message = "이슈 내용은 1 ~ 500글자여야 합니다")
+    @NotBlank
+    @Size(min = 1, max = 500)
     private String contents;
 
-    @NotNull(message = "작성자는 필수입니다")
+    @NotNull
     private Integer writer;
 
     private List<Integer> labels;
@@ -29,6 +29,5 @@ public class CreateIssue {
     private final UploadFile file;
 
     private final List<Integer> assignee;
-
     private final Integer milestone;
 }
