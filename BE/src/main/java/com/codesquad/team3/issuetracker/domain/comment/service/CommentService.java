@@ -10,9 +10,11 @@ public interface CommentService {
 
     void create(Integer id, CreateComment form, boolean isPrimary);
 
-    void delete(Integer id);
+    void softDelete(Integer id);
 
-    void update(UpdateComment form);
+    void restore(Integer id);
+
+    void update(Integer id, UpdateComment form);
 
     void updatePrimary(Integer id, String newContent);
 

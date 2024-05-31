@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.codesquad.team3.issuetracker.domain.filter.mapper.IssueMapper">
+
+    <resultMap id="IssueResultMap" type="com.codesquad.team3.issuetracker.domain.filter.dto.SearchedIssue">
+        <id property="id" column="issueId"/>
+        <result property="writer" column="writer"/>
+        <result property="title" column="issueTitle"/>
+        <result property="createTime" column="createTime"/>
+        <result property="milestoneId" column="milestoneId"/>
+        <collection property="labels" column="issueId" javaType="java.util.Set" select="selectLabelsForIssue"/>
+        <collection property="assignees" column="issueId" javaType="java.util.Set" select="selectAssigneesForIssue"/>
+    </resultMap>
+
+    <select id="selectLabelsForIssue" resultType="com.codesquad.team3.issuetracker.domain.issue.entity.mapping.IssueLabel">
+        SELECT label_id FROM labels_in_issue WHERE issue_id = #{issueId}
+    </select>
+
+    <select id="selectAssigneesForIssue" resultType="com.codesquad.team3.issuetracker.domain.issue.entity.mapping.Assigner">
+        SELECT assigner_id FROM assigner WHERE issue_id = #{issueId}
+    </select>
+    <select id="filter" parameterType="com.codesquad.team3.issuetracker.domain.filter.dto.FilterDto" resultMap="IssueResultMap">
+        SELECT i.id AS issueId,
+        i.writer_id AS writer,
+        i.title AS issueTitle,
+        i.create_time AS createTime,
+        i.milestone_id AS milestoneId
+        FROM issue i
+        <if test="assignees != null and assignees.size() > 0">
+            JOIN assigner a ON i.id = a.issue_id
+            AND a.assigner_id IN
+            <foreach collection="assignees" item="assignee" separator="," open="(" close=")">
+                #{assignee}
+            </foreach>
+        </if>
+        <if test="labels != null and labels.size() > 0">
+            JOIN labels_in_issue l ON i.id = l.issue_id
+            AND l.label_id IN
+            <foreach collection="labels" item="label" separator="," open="(" close=")">
+                #{label}
+            </foreach>
+        </if>
+        WHERE 1=1
+        <if test="state != null">
+            AND i.is_closed = #{state}
+        </if>
+        <if test="milestone != null">
+            AND i.milestone_id = #{milestone}
+        </if>
+        <if test="assignees != null and assignees.size() > 0 or labels != null and labels.size() > 0">
+            GROUP BY i.id, i.writer_id, i.title, i.create_time, i.milestone_id
+            HAVING
+            <if test="assignees != null and assignees.size() > 0">
+                COUNT(DISTINCT a.assigner_id) = #{assigneesSize}
+                <if test="labels != null and labels.size() > 0">
+                    AND
+                </if>
+            </if>
+            <if test="labels != null and labels.size() > 0">
+                COUNT(DISTINCT l.label_id) = #{labelsSize}
+            </if>
+        </if>
+    </select>
+
+    <select id="search" parameterType="String" resultMap="IssueResultMap">
+        SELECT DISTINCT
+            i.id AS issueId,
+            i.writer_id AS writer,
+            i.title AS issueTitle,
+            i.create_time AS createTime,
+            i.milestone_id AS milestoneId
+        FROM issue i
+                 LEFT JOIN member writer on writer.id = i.writer_id
+                 LEFT JOIN assigner a on a.issue_id = i.id
+                 LEFT JOIN member m ON m.id = a.assigner_id
+                 LEFT JOIN milestone mi ON mi.id = i.milestone_id
+                 LEFT JOIN labels_in_issue lii ON lii.issue_id = i.id
+                 LEFT JOIN label l ON l.id = lii.label_id
+        WHERE
+           LOWER(i.title) LIKE concat('%', LOWER(#{keyword}), '%')
+           OR LOWER(m.member_id) LIKE concat('%', LOWER(#{keyword}), '%')
+           OR LOWER(writer.member_id) LIKE concat('%', LOWER(#{keyword}), '%')
+           OR LOWER(mi.title) LIKE concat('%', LOWER(#{keyword}), '%')
+           OR LOWER(l.title) LIKE concat('%', LOWER(#{keyword}), '%');
+    </select>
+</mapper>

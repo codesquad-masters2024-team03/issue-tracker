@@ -1,6 +1,7 @@
 package com.codesquad.team3.issuetracker.support.repository;
 
 import com.codesquad.team3.issuetracker.global.entity.SoftDeleteEntity;
+import com.codesquad.team3.issuetracker.support.enums.OpenCloseSearchFlags;
 import com.codesquad.team3.issuetracker.support.enums.SoftDeleteSearchFlags;
 import org.springframework.data.repository.NoRepositoryBean;
 
@@ -36,6 +37,10 @@ public interface SoftDeleteCrudRepository<T extends SoftDeleteEntity, ID> extend
 
     default Iterable<T> findAll(SoftDeleteSearchFlags flags) {
         return getJdbcAggregateTemplate().findAll(getQuery(flags), getType());
+    }
+
+    default Iterable<T> findAll(SoftDeleteSearchFlags flags1, OpenCloseSearchFlags flags2) {
+        return getJdbcAggregateTemplate().findAll(getQuery(flags1, flags2), getType());
     }
 
     default int countByDeleteCondition(SoftDeleteSearchFlags flags) {

@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -23,7 +24,7 @@ public class LabelController {
 
     @PostMapping
     public void create(@RequestBody @Validated LabelForm form,
-                                        BindingResult bindingResult) {
+                       BindingResult bindingResult) {
 
         if (bindingResult.hasErrors()) {
 
@@ -43,7 +44,7 @@ public class LabelController {
 
     @PutMapping("/{id}")
     public void updateById(@PathVariable("id") Integer id, @RequestBody @Validated LabelForm form, BindingResult bindingResult) {
-        if(bindingResult.hasErrors()){
+        if (bindingResult.hasErrors()) {
             //에러 로직
         }
 
@@ -57,8 +58,9 @@ public class LabelController {
     }
 
     @GetMapping
-    public ResponseEntity<LabelList> findAll(){
+    public ResponseEntity<LabelList> findAll() {
         List<Label> labels = labelService.findAll();
+
 
         return ResponseEntity.ok(new LabelList(labels));
     }

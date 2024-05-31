@@ -11,7 +11,27 @@ import org.springframework.data.relational.core.query.Query;
 public class RepositorySupport {
 
     private RepositorySupport() {
+    }
 
+    public static Query getQuery(SoftDeleteSearchFlags softFlags, OpenCloseSearchFlags closeFlags) {
+        Criteria criteria = Criteria.empty();
+        if (softFlags.equals(SoftDeleteSearchFlags.ALL) && closeFlags.equals(OpenCloseSearchFlags.ALL)) {
+            return Query.query(criteria);
+        }
+        if (softFlags.equals(SoftDeleteSearchFlags.ALL)) {
+            return getQuery(closeFlags);
+        }
+
+        if(closeFlags.equals(OpenCloseSearchFlags.ALL)) {
+            return getQuery(softFlags);
+        }
+
+        boolean searchCondition1 = softFlags.equals(SoftDeleteSearchFlags.DELETED);
+        boolean searchCondition2 = closeFlags.equals(OpenCloseSearchFlags.CLOSE);
+
+        criteria = Criteria.where("is_deleted").is(searchCondition1).and("is_closed").is(searchCondition2);
+
+        return Query.query(criteria);
     }
 
     public static Query getQuery(SoftDeleteSearchFlags flags) {

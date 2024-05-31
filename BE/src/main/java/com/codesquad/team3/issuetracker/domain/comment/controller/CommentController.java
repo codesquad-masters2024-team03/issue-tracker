@@ -26,18 +26,23 @@ public class CommentController {
         commentService.create(id, form, false);
     }
 
-    @PutMapping
-    public void updateById(@RequestBody @Valid UpdateComment form, BindingResult bindingResult){
+    @PutMapping("/{id}")
+    public void updateById(@PathVariable("id") Integer id, @RequestBody @Valid UpdateComment form, BindingResult bindingResult){
         if(bindingResult.hasErrors()){
 
         }
 
-        commentService.update(form);
+        commentService.update(id, form);
     }
 
-    @DeleteMapping
-    public void delete(@RequestBody Integer id){
-        commentService.delete(id);
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable("id") Integer id){
+        commentService.softDelete(id);
+    }
+
+    @PutMapping("/restore/{id}")
+    public void restore(@PathVariable("id") Integer id){
+        commentService.restore(id);
     }
 
 

@@ -4,10 +4,10 @@ import com.codesquad.team3.issuetracker.domain.issue.dto.request.CreateIssue;
 import com.codesquad.team3.issuetracker.domain.issue.entity.Issue;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Getter
 public class CreateComment {
 
