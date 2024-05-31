@@ -20,7 +20,7 @@ public class IssueInfo {
     private final String title;
     private final Integer writer;
     private final LocalDateTime createTime;
-    private final List<LabelDetail> lables;
+    private final List<LabelDetail> labels;
     private String milestoneTitle;
 
     public static IssueInfo toEntity(Issue issue, List<LabelDetail> label, Milestone milestone) {
